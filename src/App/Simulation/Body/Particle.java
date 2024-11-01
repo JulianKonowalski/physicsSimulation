@@ -12,7 +12,7 @@ public class Particle extends  DynamicBody {
         mRadius = radius;
     }
 
-    public int Radius() { return mRadius; }
+    public int radius() { return mRadius; }
 
     private final int mRadius;
 }

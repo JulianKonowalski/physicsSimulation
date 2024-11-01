@@ -39,7 +39,7 @@ public class Vec2 {
     public static float distance(Vec2 v1, Vec2 v2) { return (float)Math.sqrt((v1.x() - v2.x()) * (v1.x() - v2.x()) + (v1.y() - v2.y()) * (v1.y() - v2.y())); }
     public static float angle(Vec2 v1, Vec2 v2) { return (float)Math.acos(innerProduct(v1, v2) / (v1.length() * v2.length())); }
     public static Vec2 invert(Vec2 v) { return new Vec2(-v.x(), -v.y()); }
-    public static Vec2 Rotate(Vec2 v, float angle) {
+    public static Vec2 rotate(Vec2 v, float angle) {
         float x = v.x() * (float)Math.cos(angle) - v.y() * (float)Math.sin(angle);
         float y = v.x() * (float)Math.sin(angle) + v.y() * (float)Math.cos(angle);
         return new Vec2(x, y);
