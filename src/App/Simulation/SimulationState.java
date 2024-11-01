@@ -1,9 +1,9 @@
 package App.Simulation;
 
-import java.util.List;
-
 import App.Simulation.Body.LineSegment;
 import App.Simulation.Body.Particle;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SimulationState {
 
@@ -12,7 +12,9 @@ public class SimulationState {
         mParticles = particles;
     }
 
-    //public so it can be easily accessed; validation of data is not possible anyway
-    public List<LineSegment> mWalls;
-    public List<Particle> mParticles;
+    public List<LineSegment> getWalls() { return mWalls; }
+    public List<Particle> getParticles() { return mParticles; }
+
+    private List<LineSegment> mWalls = new ArrayList<>();
+    private List<Particle> mParticles = new ArrayList<>();
 }

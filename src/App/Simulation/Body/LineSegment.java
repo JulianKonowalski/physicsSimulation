@@ -4,7 +4,7 @@ import App.Simulation.Vector.Vec2;
 
 public class LineSegment extends StaticBody {
 
-    LineSegment(Vec2 p1, Vec2 p2) {
+    public LineSegment(Vec2 p1, Vec2 p2) {
         mP1 = p1;
         mP2 = p2;
     }
@@ -17,7 +17,7 @@ public class LineSegment extends StaticBody {
         return mP2;
     }
 
-    static boolean equals(LineSegment l1, LineSegment l2) {
+    public static boolean equals(LineSegment l1, LineSegment l2) {
         return (Vec2.equals(l1.p1(), l2.p1()) && Vec2.equals(l1.p2(), l2.p2())) ||
                 (Vec2.equals(l1.p1(), l2.p2()) && Vec2.equals(l1.p2(), l2.p1()));
     }

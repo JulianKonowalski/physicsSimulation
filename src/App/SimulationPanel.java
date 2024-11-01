@@ -1,13 +1,12 @@
 package App;
 
-import javax.swing.JPanel;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
+import javax.swing.JPanel;
 
 public class SimulationPanel extends JPanel implements Runnable{
     
@@ -69,10 +68,10 @@ public class SimulationPanel extends JPanel implements Runnable{
         //toDo
     }
     
-    private int mScreenWidth;
-    private int mScreenHeight;
+    private final int mScreenWidth;
+    private final int mScreenHeight;
     private int mFPS;
 
     private Thread mSimulationThread;
-    private MouseHandler mMouseHandler = new MouseHandler();
+    private final MouseHandler mMouseHandler = new MouseHandler();
 }

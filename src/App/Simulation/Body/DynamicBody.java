@@ -10,27 +10,15 @@ public class DynamicBody {
         mAcceleration = acceleration;
         mMass = mass;
     }
-    public Vec2 Pos() {
-        return mPosition;
-    }
-    public Vec2 Vel() {
-        return mVelocity;
-    }
-    public Vec2 Acc() {
-        return mAcceleration;
-    }
-    public float Mass() {
-        return mMass;
-    }
-    public void SetPos(Vec2 position) {
-        mPosition = position;
-    }
-    public void SetVel(Vec2 velocity) {
-        mVelocity = velocity;
-    }
-    public void SetAcc(Vec2 acceleration) {
-        mAcceleration = acceleration;
-    }
+    
+    public Vec2 position() { return mPosition; }
+    public Vec2 velocity() { return mVelocity; }
+    public Vec2 acceleration() { return mAcceleration; }
+    public float mass() { return mMass; }
+
+    public void setPosition(Vec2 position) { mPosition = position; }
+    public void setVelocity(Vec2 velocity) { mVelocity = velocity; }
+    public void setAcceleration(Vec2 acceleration) { mAcceleration = acceleration; }
 
     private Vec2 mPosition;
     private Vec2 mVelocity;
