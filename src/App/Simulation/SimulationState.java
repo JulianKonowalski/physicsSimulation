@@ -1,9 +1,7 @@
 package App.Simulation;
 
-import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
 import App.Simulation.Body.StaticBody;
-import App.Simulation.Util.LineSegment;
 
 import java.util.ArrayList;
 import java.util.List;
