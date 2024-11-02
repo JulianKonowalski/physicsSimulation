@@ -1,4 +1,4 @@
-package App.Simulation.Vector;
+package App.Simulation.Util;
 
 public class Vec2 {
     
