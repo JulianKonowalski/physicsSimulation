@@ -1,5 +1,6 @@
 package App;
 
+import App.Simulation.Body.Body;
 import App.Simulation.Simulation;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -7,6 +8,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import javax.swing.JPanel;
 
 public class SimulationPanel extends JPanel implements Runnable{
@@ -15,6 +17,7 @@ public class SimulationPanel extends JPanel implements Runnable{
         mScreenWidth = width;
         mScreenHeight = height;
         mSimulation = new Simulation();
+        mMouseHandler = new MouseHandler();
         this.setPreferredSize(new Dimension(mScreenWidth, mScreenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
@@ -43,7 +46,7 @@ public class SimulationPanel extends JPanel implements Runnable{
         Graphics2D g2d = setupG2D(g);
 
         drawScene(g2d);
-        printFrameTime(g2d); //for debugging
+        printDebugInfo(g2d);
 
         g2d.dispose();
     }
@@ -63,11 +66,14 @@ public class SimulationPanel extends JPanel implements Runnable{
     }
 
     private void drawScene(Graphics2D g2d) {
-        //toDo
+        List<Body> bodies = mSimulation.getState().getBodies();
+        for(Body body : bodies) {
+            g2d.fill(body.getShape());
+        }
     }
 
-    private void printFrameTime(Graphics2D g2d) {
-        //toDo
+    private void printDebugInfo(Graphics2D g2d) {
+        //logic
     }
     
     private final int mScreenWidth;
@@ -75,5 +81,5 @@ public class SimulationPanel extends JPanel implements Runnable{
 
     private final Simulation mSimulation;
     private Thread mSimulationThread;
-    private final MouseHandler mMouseHandler = new MouseHandler();
+    private final MouseHandler mMouseHandler;
 }
