@@ -1,5 +1,6 @@
 package App;
 
+import App.Simulation.Simulation;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -13,6 +14,7 @@ public class SimulationPanel extends JPanel implements Runnable{
     public SimulationPanel(int width, int height) {
         mScreenWidth = width;
         mScreenHeight = height;
+        mSimulation = new Simulation();
         this.setPreferredSize(new Dimension(mScreenWidth, mScreenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
@@ -29,7 +31,7 @@ public class SimulationPanel extends JPanel implements Runnable{
     public void run() {
         while(mSimulationThread != null) {
             resolveMouseEvents();
-            //simulation.update();
+            mSimulation.update();
             repaint();
         }
     }
@@ -70,8 +72,8 @@ public class SimulationPanel extends JPanel implements Runnable{
     
     private final int mScreenWidth;
     private final int mScreenHeight;
-    private int mFPS;
 
+    private final Simulation mSimulation;
     private Thread mSimulationThread;
     private final MouseHandler mMouseHandler = new MouseHandler();
 }

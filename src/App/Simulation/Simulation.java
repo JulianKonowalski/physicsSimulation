@@ -7,16 +7,18 @@ import App.Simulation.Body.DynamicBody;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Pair;
 import App.Simulation.Util.Vec2;
-
+import App.Simulation.Util.Timer;
+import App.Simulation.SimulationState;
 
 public class Simulation {
 
-  public Simulation(SimulationState state, int FPS) {
-    timeStep = 1.0f / FPS;
-    mState = state;
+  public Simulation() {
+    mTimer = new Timer();
+    mState = new SimulationState();
   }
 
   public void update() {
+    long timestep = mTimer.getElapsedTimeAndReset();
 //    List<LineSegment> linesToCheck = new ArrayList<>(mState.dynamicBodies().size());
 //    List<Intersection> intersections = new ArrayList<>();
 //    getLinesToCheck(linesToCheck);
@@ -43,7 +45,7 @@ public class Simulation {
 //  }
 
   private SimulationState mState;
-  private final float timeStep; // Time step in seconds
+  private Timer mTimer;
 
 //  private static class Intersection{
 //    public Vec2 point;
