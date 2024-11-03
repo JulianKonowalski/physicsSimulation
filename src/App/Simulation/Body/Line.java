@@ -1,5 +1,7 @@
 package App.Simulation.Body;
 
+import App.Simulation.CollidableInterface.Collidable;
+import App.Simulation.CollidableInterface.CollisionVisitor;
 import App.Simulation.Util.Vec2;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
@@ -33,15 +35,18 @@ public class Line extends Body {
     public int type() { return LINE; }
 
     @Override
-    public boolean intersects(Body other) {
-        return false;
-    }
+    public boolean intersects(Body other) { return false; }
 
     @Override
     public void update(double timeStep) { /* doNothing */ }
 
     @Override
     public Shape getShape() { return mShape; }
+
+    @Override
+    public void accept(CollisionVisitor visitor, Collidable other) {
+
+    }
 
     private Path2D constructShape() {
         Path2D path = new Path2D.Double();

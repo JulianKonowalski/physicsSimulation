@@ -36,7 +36,7 @@ public class Simulation {
     private void checkForCollisions(Body body, List<Body> bodies) {
         for(Body other : bodies) {
             if(body == other) { continue; }
-            if(body.intersects(other)) { mCollisionSolver.collide(body, other); }
+            if(body.intersects(other)) { body.accept(mCollisionSolver, other); }
         }
     }
 

@@ -1,5 +1,7 @@
 package App.Simulation.Body;
 
+import App.Simulation.CollidableInterface.Collidable;
+import App.Simulation.CollidableInterface.CollisionVisitor;
 import App.Simulation.Util.Vec2;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
@@ -42,6 +44,9 @@ public class Particle extends Body {
         2.0 * this.radius()
         );
     }
+
+    @Override
+    public void accept(CollisionVisitor visitor, Collidable other) { visitor.visit(this, other); }
 
     private boolean intersectsWithLine(Line line) {
         if(Vec2.distance(mPosition, line.start()) <= mRadius) { return true; }

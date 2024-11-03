@@ -1,11 +1,13 @@
 package App.Simulation.Body;
 
+import App.Simulation.CollidableInterface.Collidable;
+import App.Simulation.CollidableInterface.CollisionVisitor;
 import App.Simulation.Util.Vec2;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Body {
+public abstract class Body implements Collidable {
 
     public Body(boolean isStatic, Vec2 position, Vec2 velocity, Vec2 acceleration, double mass) {
         if (mass < 0) { throw new IllegalArgumentException("Tried to set a negative body mass"); }
@@ -38,6 +40,9 @@ public abstract class Body {
     public abstract boolean intersects(Body other); /* toOverride */
     public abstract void update(double timeStep); /* toOverride */
     public abstract Shape getShape(); /* toOverride */
+
+    @Override
+    public abstract void accept(CollisionVisitor visitor, Collidable other); /* toOverride */
 
     /* STATIC CONSTANTS */
     public final static int LINE = 1;
