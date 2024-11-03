@@ -45,10 +45,10 @@ public class Vec2 {
     public static Vec2 subtract(Vec2 v1, Vec2 v2) { return new Vec2(v1.x() - v2.x(), v1.y() - v2.y()); }
     public static Vec2 scale(Vec2 v1, double scalar) { return new Vec2(v1.x() * scalar, v1.y() * scalar); }
     public static boolean equals(Vec2 v1, Vec2 v2) { return v1.x() == v2.x() && v1.y() == v2.y(); }
-    public static double innerProduct(Vec2 v1, Vec2 v2) { return v1.x() * v2.x() + v1.y() * v2.y(); }
+    public static double dotProduct(Vec2 v1, Vec2 v2) { return v1.x() * v2.x() + v1.y() * v2.y(); }
     public static double distanceSquared(Vec2 v1, Vec2 v2) { return (v1.x() - v2.x()) * (v1.x() - v2.x()) + (v1.y() - v2.y()) * (v1.y() - v2.y()); }
     public static double distance(Vec2 v1, Vec2 v2) { return (double)Math.sqrt((v1.x() - v2.x()) * (v1.x() - v2.x()) + (v1.y() - v2.y()) * (v1.y() - v2.y())); }
-    public static double angle(Vec2 v1, Vec2 v2) { return (double)Math.acos(innerProduct(v1, v2) / (v1.length() * v2.length())); }
+    public static double angle(Vec2 v1, Vec2 v2) { return (double)Math.acos(dotProduct(v1, v2) / (v1.length() * v2.length())); }
     public static Vec2 invert(Vec2 v) { return new Vec2(-v.x(), -v.y()); }
     public static Vec2 perpendicularClockwise(Vec2 v) { return new Vec2(v.y(), -v.x()); }
     public static Vec2 perpendicularCounterClockwise(Vec2 v) { return new Vec2(-v.y(), v.x()); }

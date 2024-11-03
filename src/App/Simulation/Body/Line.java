@@ -13,9 +13,7 @@ public class Line extends Body {
         super(true, position, Vec2.zero(), Vec2.zero(), 0.0);
         if(length < 0.0) { throw new IllegalArgumentException("Tried to set a negative line length"); }
         if(thickness < 0.0) { throw new IllegalArgumentException("Tried to set a negative line thickness"); }
-        mPosition = position;
         mLength = length;
-        mAngle = angle;
         mThickness = thickness;
         double xOffset = Math.cos(angle) * length/2;
         double yOffset = Math.sin(angle) * length/2;
@@ -24,16 +22,26 @@ public class Line extends Body {
         mShape = constructShape();
     }
 
-    @Override
-    public Shape getShape() { return mShape; }
+    public Vec2 start() { return mVertices.get(0); }
+    public Vec2 end() { return mVertices.get(1); }
+    public double length() { return mLength; }
+    public boolean includesPoint(Vec2 point) {
+        return (Vec2.distance(point, start()) + Vec2.distance(point, end())) == mLength;
+    }
 
     @Override
-    public void collide(Body other) {
-        throw new UnsupportedOperationException("Line collisions aren't supported yet.");
+    public int type() { return LINE; }
+
+    @Override
+    public boolean intersects(Body other) {
+        return false;
     }
 
     @Override
     public void update(double timeStep) { /* doNothing */ }
+
+    @Override
+    public Shape getShape() { return mShape; }
 
     private Path2D constructShape() {
         Path2D path = new Path2D.Double();
@@ -53,9 +61,8 @@ public class Line extends Body {
         return path;
     }
 
-    private final Vec2 mPosition;
+    /* MEMBER VARIABLES */
     private final double mLength;
-    private final double mAngle;
     private final double mThickness;
     private final Path2D mShape;
 
