@@ -21,14 +21,15 @@ public class Simulation {
     }
 
     public SimulationState getState() { return mState; }
+    public long getLastFrameTime(){ return mFrameTime; }
 
     public void update() {
-        long timestep = mTimer.getElapsedTimeAndReset(); //IN NANOSECONDS!!!
+        mFrameTime = mTimer.getElapsedTimeAndReset(); //IN NANOSECONDS!!!
 
         List<Body> bodies = mState.getBodies();
         for(Body body : bodies) {
             checkForCollisions(body, bodies);
-            body.update(timestep * 0.000000001);
+            body.update(mFrameTime * 0.000000001);
         }
     }
 
@@ -39,7 +40,8 @@ public class Simulation {
         }
     }
 
-    private SimulationState mState;
-    private CollisionSolver mCollisionSolver;
-    private Timer mTimer;
+    private final SimulationState mState;
+    private final CollisionSolver mCollisionSolver;
+    private final Timer mTimer;
+    private long mFrameTime;
 }

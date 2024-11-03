@@ -54,6 +54,8 @@ public class SimulationPanel extends JPanel implements Runnable{
     private void resolveMouseEvents() {
         if (mMouseHandler.mouseClicked()) {
             MouseEvent event = mMouseHandler.getLastEvent();
+            event.getX();
+            event.getY();
             //logic
         }
     }
@@ -73,7 +75,8 @@ public class SimulationPanel extends JPanel implements Runnable{
     }
 
     private void printDebugInfo(Graphics2D g2d) {
-        //logic
+        String message = "Frame time[ns]: " + mSimulation.getLastFrameTime();
+        g2d.drawString(message, 5, 15);
     }
     
     private final int mScreenWidth;

@@ -12,5 +12,5 @@ public class SimulationState {
   public void addBody(Body body) { mBodies.add(body); }
   public List<Body> getBodies() { return mBodies; }
 
-  private List<Body> mBodies;
+  private final List<Body> mBodies;
 }
