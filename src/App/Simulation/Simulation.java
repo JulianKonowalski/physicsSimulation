@@ -14,14 +14,16 @@ public class Simulation {
         mTimer = new Timer(System.nanoTime());
         mCollisionSolver = new CollisionSolver();
         List<Body> inititalState = new ArrayList<>();
-        inititalState.add(new Particle(false, new Vec2(100, 150), Vec2.zero(), new Vec2(0, 100), 1.0, 5));
-        //inititalState.add(new Particle(false, new Vec2(100, 100), Vec2.zero(), new Vec2(0, 200), 1.0, 5));
+        // inititalState.add(new Particle(true, new Vec2(100, 250), Vec2.zero(), new Vec2(0, 100), 1.0, 20));
+        // inititalState.add(new Particle(false, new Vec2(85, 100), Vec2.zero(), new Vec2(0, 200), 1.0, 5));
+        inititalState.add(new Particle(false, new Vec2(110, 100), new Vec2(0, 150), Vec2.zero(), 1.0, 5));
+        inititalState.add(new Particle(false, new Vec2(100, 250), Vec2.zero(), Vec2.zero(), 5.0, 10));
         inititalState.add(new Line(new Vec2(300, 500), 1000, 60, 2));
         mState = new SimulationState(inititalState);
     }
 
     public SimulationState getState() { return mState; }
-    public long getLastFrameTime(){ return mFrameTime; }
+    public long getLastFrameTime() { return mFrameTime; }
 
     public void update() {
         mFrameTime = mTimer.getElapsedTimeAndReset(); //IN NANOSECONDS!!!
@@ -35,7 +37,8 @@ public class Simulation {
 
     private void checkForCollisions(Body body, List<Body> bodies) {
         for(Body other : bodies) {
-            if(body == other) { continue; }
+            if(other == body) { continue; }
+            //if(bodies.indexOf(other) <= bodies.indexOf(body)) { continue; }
             if(body.intersects(other)) { body.accept(mCollisionSolver, other); }
         }
     }

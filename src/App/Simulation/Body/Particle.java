@@ -22,6 +22,7 @@ public class Particle extends Body {
 
     @Override
     public boolean intersects(Body body) {
+        if(mIsStatic) { return false; }
         switch(body.type()) {
             case LINE -> { return intersectsWithLine((Line)body); }
             case PARTICLE -> { return intersectsWithParticle((Particle)body); }
@@ -31,8 +32,10 @@ public class Particle extends Body {
 
     @Override
     public void update(double timeStep) { //in seconds
-        mVelocity.add(Vec2.scale(mAcceleration, timeStep));
-        mPosition.add(Vec2.scale(mVelocity, timeStep));
+        if(!mIsStatic) {
+            mVelocity.add(Vec2.scale(mAcceleration, timeStep));
+            mPosition.add(Vec2.scale(mVelocity, timeStep));
+        }
     }
 
     @Override

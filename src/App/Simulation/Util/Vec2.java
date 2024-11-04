@@ -64,6 +64,10 @@ public class Vec2 {
         }
         return new Vec2(0, 0);
     }
+    public static Vec2 project(Vec2 vec1, Vec2 vec2) {
+        Vec2 vec2Normalized = Vec2.normalize(vec2);
+        return Vec2.scale(vec2Normalized, Vec2.dotProduct(vec1, vec2Normalized));
+    }
 
     private double mX;
     private double mY;

@@ -26,6 +26,7 @@ public abstract class Body implements Collidable {
 
     public Vec2 getFuturePosition(double timeStep) { return Vec2.add(mPosition, Vec2.scale(mVelocity, timeStep)); }
 
+    public boolean isStatic() { return mIsStatic; }
     public Vec2 position() { return mPosition; }
     public Vec2 velocity() { return mVelocity; }
     public Vec2 acceleration() { return mAcceleration; }
