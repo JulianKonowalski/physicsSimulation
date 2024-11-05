@@ -17,8 +17,8 @@ public class Line extends Body {
         if(thickness < 0.0) { throw new IllegalArgumentException("Tried to set a negative line thickness"); }
         mLength = length;
         mThickness = thickness;
-        double xOffset = Math.cos(angle) * length/2;
-        double yOffset = Math.sin(angle) * length/2;
+        double xOffset = Math.cos(Math.PI * angle / 180) * length/2;
+        double yOffset = Math.sin(Math.PI * angle / 180) * length/2;
         mVertices.add(new Vec2(position.x() - xOffset, position.y() - yOffset)); //line start
         mVertices.add(new Vec2(position.x() + xOffset, position.y() + yOffset)); //line end
         mShape = constructShape();

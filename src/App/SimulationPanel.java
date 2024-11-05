@@ -41,13 +41,9 @@ public class SimulationPanel extends JPanel implements Runnable{
 
     @Override
     public void paintComponent(Graphics g) {
-
         super.paintComponent(g);
         Graphics2D g2d = setupG2D(g);
-
         drawScene(g2d);
-        printDebugInfo(g2d);
-
         g2d.dispose();
     }
 
@@ -69,12 +65,17 @@ public class SimulationPanel extends JPanel implements Runnable{
 
     private void drawScene(Graphics2D g2d) {
         List<Body> bodies = mSimulation.getState().getBodies();
+        int i = 0;
+        printFrameTime(g2d);
         for(Body body : bodies) {
             g2d.fill(body.getShape());
+            String message = "Body " + i + " speed: (" + (int)body.velocity().x() + ", " + (int)body.velocity().y() + ")";
+            g2d.drawString(message, 5, 30 + i*15);;
+            ++i;
         }
     }
 
-    private void printDebugInfo(Graphics2D g2d) {
+    private void printFrameTime(Graphics2D g2d) {
         String message = "Frame time[ns]: " + mSimulation.getLastFrameTime();
         g2d.drawString(message, 5, 15);
     }
