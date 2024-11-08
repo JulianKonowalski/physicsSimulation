@@ -1,24 +1,22 @@
 package App;
 
+import App.Util.Logger;
+
 public class App {
 
-    public App(String windowTitle, int windowWidth, int windowHeight, int FPS) {
-        mWindowTitle = windowTitle;
-        mWindowWidth = windowWidth;
-        mWindowHeight = windowHeight;
-        mFPS = FPS;
+    public App(String windowTitle, int windowWidth, int windowHeight, int FPS, String logFilePath, String logDateFormat) {
+        mWindow = new Window();
+        mPanel = mWindow.setup(windowTitle, windowWidth, windowHeight, FPS);
+        mLogger = new Logger(logFilePath, logDateFormat);
     }
 
     public void run() {
-        mWindow = new Window();
-        mPanel = mWindow.setup(mWindowTitle, mWindowWidth, mWindowHeight, mFPS);
+        mLogger.log("App", "Started the app");
         mPanel.startSimulation();
+        mLogger.close();
     }
 
-    private final String mWindowTitle;
-    private final int mWindowWidth;
-    private final int mWindowHeight;
-    private final int mFPS;
-    private Window mWindow;
-    private SimulationPanel mPanel;
+    private final Window mWindow;
+    private final SimulationPanel mPanel;
+    private final Logger mLogger;
 }
