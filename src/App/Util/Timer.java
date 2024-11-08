@@ -1,4 +1,4 @@
-package App.Simulation.Util;
+package App.Util;
 
 public class Timer {
     public Timer() { mLastTimestamp = 0; }

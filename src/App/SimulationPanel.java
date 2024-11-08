@@ -2,6 +2,7 @@ package App;
 
 import App.Simulation.Body.Body;
 import App.Simulation.Simulation;
+import App.Util.Timer;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -9,14 +10,17 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.swing.JPanel;
 
 public class SimulationPanel extends JPanel implements Runnable{
     
-    public SimulationPanel(int width, int height) {
+    public SimulationPanel(int width, int height, int FPS) {
         mScreenWidth = width;
         mScreenHeight = height;
-        mSimulation = new Simulation();
+        mTimeStep = 1.0 / FPS;
+        mTimer = new Timer();
+        mSimulation = new Simulation(mTimeStep);
         mMouseHandler = new MouseHandler();
         this.setPreferredSize(new Dimension(mScreenWidth, mScreenHeight));
         this.setBackground(Color.black);
@@ -32,10 +36,17 @@ public class SimulationPanel extends JPanel implements Runnable{
 
     @Override
     public void run() {
+      mTimer.start();
         while(mSimulationThread != null) {
             resolveMouseEvents();
             mSimulation.update();
             repaint();
+            long elapsed = mTimer.getElapsedTime();
+            long targetTime = (long) (mTimeStep * 1e9);
+            long timeToSleep = (long) (targetTime - elapsed);
+            try {TimeUnit.NANOSECONDS.sleep(timeToSleep);}
+            catch (InterruptedException e) {e.printStackTrace();}
+            mTimer.start();
         }
     }
 
@@ -66,7 +77,6 @@ public class SimulationPanel extends JPanel implements Runnable{
     private void drawScene(Graphics2D g2d) {
         List<Body> bodies = mSimulation.getState().getBodies();
         int i = 0;
-        printFrameTime(g2d);
         for(Body body : bodies) {
             g2d.fill(body.getShape());
             String message = "Body " + i + " speed: (" + (int)body.velocity().x() + ", " + (int)body.velocity().y() + ")";
@@ -75,14 +85,11 @@ public class SimulationPanel extends JPanel implements Runnable{
         }
     }
 
-    private void printFrameTime(Graphics2D g2d) {
-        String message = "Frame time[ns]: " + mSimulation.getLastFrameTime();
-        g2d.drawString(message, 5, 15);
-    }
     
     private final int mScreenWidth;
     private final int mScreenHeight;
-
+    private final double mTimeStep;
+    private final Timer mTimer;
     private final Simulation mSimulation;
     private Thread mSimulationThread;
     private final MouseHandler mMouseHandler;

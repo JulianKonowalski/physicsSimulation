@@ -70,5 +70,4 @@ public class Line extends Body {
     private final double mLength;
     private final double mThickness;
     private final Path2D mShape;
-
 }

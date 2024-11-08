@@ -3,7 +3,7 @@ package App.Simulation;
 import App.Simulation.Body.Body;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
-import App.Simulation.Util.Timer;
+import App.Util.Timer;
 import App.Simulation.Util.Vec2;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,8 @@ import java.util.List;
 
 public class Simulation {
 
-    public Simulation() {
-        mTimer = new Timer(System.nanoTime());
+    public Simulation(double timeStep) {
+        mTimeStep = timeStep;
         mCollisionSolver = new CollisionSolver();
         List<Body> inititalState = new ArrayList<>();
         inititalState.add(new Particle(false, new Vec2(780, 220), new Vec2(300, 300), Vec2.zero(), 1.0, 50));
@@ -27,19 +27,12 @@ public class Simulation {
     }
 
     public SimulationState getState() { return mState; }
-    public long getLastFrameTime() { return mFrameTime; }
 
     public void update() {
-        mFrameTime = mTimer.getElapsedTimeAndReset(); //IN NANOSECONDS!!!
-
-        // try {
-        //     TimeUnit.MILLISECONDS.sleep(16);
-        // } catch (Exception e) {}
-
         List<Body> bodies = mState.getBodies();
         for(Body body : bodies) {
             checkForCollisions(body, bodies);
-            body.update(mFrameTime * 0.000000001);
+            body.update(mTimeStep);
         }
     }
 
@@ -52,6 +45,5 @@ public class Simulation {
 
     private final SimulationState mState;
     private final CollisionSolver mCollisionSolver;
-    private final Timer mTimer;
-    private long mFrameTime;
+    private final double mTimeStep;
 }
