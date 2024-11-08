@@ -41,11 +41,8 @@ public class SimulationPanel extends JPanel implements Runnable{
             resolveMouseEvents();
             mSimulation.update();
             repaint();
-            long elapsed = mTimer.getElapsedTime();
-            long targetTime = (long) (mTimeStep * 1e9);
-            long timeToSleep = (long) (targetTime - elapsed);
-            try {TimeUnit.NANOSECONDS.sleep(timeToSleep);}
-            catch (InterruptedException e) {e.printStackTrace();}
+            try { TimeUnit.NANOSECONDS.sleep((long) (mTimeStep * 1e9) - mTimer.getElapsedTime()); }
+            catch (InterruptedException e) { System.out.println(e.getMessage()); }
             mTimer.start();
         }
     }
@@ -80,7 +77,7 @@ public class SimulationPanel extends JPanel implements Runnable{
         for(Body body : bodies) {
             g2d.fill(body.getShape());
             String message = "Body " + i + " speed: (" + (int)body.velocity().x() + ", " + (int)body.velocity().y() + ")";
-            g2d.drawString(message, 5, 30 + i*15);;
+            g2d.drawString(message, 5, 30 + i*15);
             ++i;
         }
     }

@@ -52,7 +52,6 @@ public class CollisionSolver implements  CollisionVisitor {
 
     private void particleLineCollision(Particle particle, Line line) {
         Vec2 normalCollisionAxis = Vec2.normalize(Vec2.perpendicularCounterClockwise(new Vec2(line.end().x() - line.start().x(), line.end().y() - line.start().y())));
-        double normalParticleVelocity = Vec2.length(Vec2.project(particle.velocity(), normalCollisionAxis));
         particle.setVelocity(Vec2.subtract(particle.velocity(), Vec2.scale(normalCollisionAxis, 2 * Vec2.dotProduct(particle.velocity(), normalCollisionAxis) / Vec2.lengthSquared(normalCollisionAxis))));
     }
 

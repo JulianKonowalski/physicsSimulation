@@ -3,11 +3,9 @@ package App.Simulation;
 import App.Simulation.Body.Body;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
-import App.Util.Timer;
 import App.Simulation.Util.Vec2;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.concurrent.TimeUnit;
 
 public class Simulation {
 
