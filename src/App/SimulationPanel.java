@@ -1,6 +1,7 @@
 package App;
 
 import App.Simulation.Body.Body;
+import App.Simulation.Body.NewBody;
 import App.Simulation.Simulation;
 import App.Util.Timer;
 import java.awt.Color;
@@ -72,9 +73,9 @@ public class SimulationPanel extends JPanel implements Runnable{
     }
 
     private void drawScene(Graphics2D g2d) {
-        List<Body> bodies = mSimulation.getState().getBodies();
+        List<NewBody> bodies = mSimulation.getState().getBodies();
         int i = 0;
-        for(Body body : bodies) {
+        for(NewBody body : bodies) {
             g2d.fill(body.getShape());
             String message = "Body " + i + " speed: (" + (int)body.velocity().x() + ", " + (int)body.velocity().y() + ")";
             g2d.drawString(message, 5, 30 + i*15);
