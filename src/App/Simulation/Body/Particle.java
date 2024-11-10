@@ -30,11 +30,9 @@ public class Particle implements Body {
   public Vec2 predictedPosition(double t) { return Vec2.add(mPosition, Vec2.scale(mVelocity, t)); }
   @Override
   public LineSegment getLineSegment(double t) { return new LineSegment(mPosition, predictedPosition(t)); }
-  @Override
-  public void accept(CollisionSolver solver, Body other) {
 
-  }
-
+  public double radius() { return mRadius; }
+  
   public void setVelocity(CollisionSolver.SolverKey solverKey, Vec2 velocity) {
     Objects.requireNonNull(solverKey);
     mVelocity = velocity;

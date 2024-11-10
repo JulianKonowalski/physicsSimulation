@@ -1,6 +1,5 @@
 package App.Simulation.Body;
 
-import App.Simulation.CollisionSolver;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
 import java.awt.Shape;
@@ -32,8 +31,6 @@ public class Line extends LineSegment implements Body {
   public LineSegment getLineSegment(double t) { return this; }
   @Override
   public Shape getShape() { return mShape; }
-  @Override
-  public void accept(CollisionSolver solver, Body other) { /* doNothing */ }
 
   private Path2D constructShape(double thickness) {
     Path2D path = new Path2D.Double();

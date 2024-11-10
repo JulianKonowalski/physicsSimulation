@@ -13,18 +13,13 @@ public class SimulationState {
     mParticles = particles;
   }
 
-  public List<Line> getWalls() {
-    return mWalls;
-  }
-
-  public List<Particle> getParticles() {
-    return mParticles;
-  }
+  public List<Line> getWalls() { return mWalls; }
+  public List<Particle> getParticles() { return mParticles; }
 
   public List<Body> getBodies() {
     List<Body> bodies = new ArrayList<>();
-    bodies.addAll(mWalls);
     bodies.addAll(mParticles);
+    bodies.addAll(mWalls);
     return bodies;
   }
 

@@ -8,18 +8,13 @@ import java.util.TreeSet;
 
 public class CollisionSolver {
 
-  public static final class SolverKey { private SolverKey(){}; }
-  private static final SolverKey solverKey = new SolverKey();
-
   public void resolveCollision(TreeSet<FutureCollisionData> q) {
     FutureCollisionData currentData = q.first();
-    currentData.body().accept(this, currentData.collider());
     switch (currentData.collider().type()) {
         case PARTICLE -> { particleParticleCollision(currentData.body(), (Particle)currentData.collider()); }
         case LINE -> { particleLineCollision(currentData); }
         default -> {/* doNothing */}
     }
-    //currentData.body().resolveLineCollision(currentData.timeToCollision(), currentData.collider().getLineSegment(mTimeStep));
     q.remove(currentData);
   }
 
@@ -62,5 +57,8 @@ public class CollisionSolver {
     particle.addToInternalTime(solverKey, timeToCollision);
     
   }
+
+  public static final class SolverKey { private SolverKey(){}; }
+  private static final SolverKey solverKey = new SolverKey();
 
 }
