@@ -38,19 +38,12 @@ public class LineSegment {
         return 1.0;
       }
       // Do they overlap? (Are all the point differences in either direction the same sign)
-      boolean xCheck = !allEqual(
-              (q1.x() - p1.x() < 0),
-              (q1.x() - p2.x() < 0),
-              (q2.x() - p1.x() < 0),
-              (q2.x() - p2.x() < 0));
-
-      boolean yCheck = !allEqual(
-              (q1.y() - p1.y() < 0),
-              (q1.y() - p2.y() < 0),
-              (q2.y() - p1.y() < 0),
-              (q2.y() - p2.y() < 0));
-
-      return xCheck || yCheck ? 0.0: null; //to fix
+      Double time = timeForCollinear(p1.x(), p2.x(), q1.x(), q2.x());
+      if (time != null) {
+        return time;
+      }
+      time = timeForCollinear(p1.y(), p2.y(), q1.y(), q2.y());
+      return time;
     }
 
     if (denominator == 0) {
@@ -71,6 +64,13 @@ public class LineSegment {
       }
     }
     return true;
+  }
+
+  private static Double timeForCollinear(double A, double B, double C, double D) {
+    if (allEqual(C - A < 0, C - B < 0, D - A < 0, D - B < 0)) {
+      return null;
+    }
+    return Math.min(Math.abs(A-C), Math.abs(A - D)) / Math.abs(B - A);
   }
 
   private final Vec2 mP1;
