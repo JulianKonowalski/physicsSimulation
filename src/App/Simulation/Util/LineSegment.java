@@ -54,7 +54,7 @@ public class LineSegment {
     double u = uNumerator / denominator;
     double t = Vec2.crossProduct(Vec2.subtract(q1, p1), s) / denominator;
 
-    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1) ? t : -1.0;
+    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1) ? t : null;
   }
 
   private static boolean allEqual(boolean... values) {
