@@ -44,7 +44,7 @@ public class Simulation {
     do {
       for (Particle current : particles) {
         //TODO: tutaj powinno być zawężanie listy boidies i do closestCollision() powinny trafiać tylko te z którymi jest szansa na zderzenie
-        Pair<Double, Body> closestToCurrent = mCollisionDetector.closestCollision(current, bodies.subList(bodies.indexOf(current), bodies.size()));
+        Pair<Double, Body> closestToCurrent = mCollisionDetector.closestCollision(current, bodies);
         if (closestToCurrent != null) {
           q.add(new FutureCollisionData(current, closestToCurrent.first, closestToCurrent.second)); //tree map automatycznie sortuje
         }
