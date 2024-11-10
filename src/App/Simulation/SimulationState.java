@@ -1,34 +1,33 @@
 package App.Simulation;
 
-import App.Simulation.Body.NewBody;
-import App.Simulation.Body.NewLine;
-import App.Simulation.Body.NewParticle;
-
+import App.Simulation.Body.Body;
+import App.Simulation.Body.Line;
+import App.Simulation.Body.Particle;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SimulationState {
 
-  public SimulationState(List<NewLine> walls, List<NewParticle> particles) {
+  public SimulationState(List<Line> walls, List<Particle> particles) {
     mWalls = walls;
     mParticles = particles;
   }
 
-  public List<NewLine> getWalls() {
+  public List<Line> getWalls() {
     return mWalls;
   }
 
-  public List<NewParticle> getParticles() {
+  public List<Particle> getParticles() {
     return mParticles;
   }
 
-  public List<NewBody> getBodies() {
-    List<NewBody> bodies = new ArrayList<>();
+  public List<Body> getBodies() {
+    List<Body> bodies = new ArrayList<>();
     bodies.addAll(mWalls);
     bodies.addAll(mParticles);
     return bodies;
   }
 
-  private final List<NewLine> mWalls;
-  private final List<NewParticle> mParticles;
+  private final List<Line> mWalls;
+  private final List<Particle> mParticles;
 }
