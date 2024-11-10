@@ -11,8 +11,8 @@ public class NewLine extends LineSegment implements NewBody {
   public NewLine(Vec2 P1, Vec2 P2) {
     super(P1, P2);
   }
-  public Vec2 p1() { return p1(); }
-  public Vec2 p2() { return p2(); }
+  public Vec2 p1() { return super.p1(); }
+  public Vec2 p2() { return super.p2(); }
 
   @Override
   public boolean isDynamic() {
@@ -37,6 +37,10 @@ public class NewLine extends LineSegment implements NewBody {
   @Override
   public Vec2 predictedPosition(double t) {
     return Vec2.zero();
+  }
+  @Override
+  public LineSegment getLineSegment(double t) {
+    return this;
   }
 
   @Override

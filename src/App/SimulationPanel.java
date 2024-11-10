@@ -1,6 +1,5 @@
 package App;
 
-import App.Simulation.Body.Body;
 import App.Simulation.Body.NewBody;
 import App.Simulation.Simulation;
 import App.Util.Timer;
@@ -42,7 +41,13 @@ public class SimulationPanel extends JPanel implements Runnable{
             resolveMouseEvents();
             mSimulation.update();
             repaint();
-            try { TimeUnit.NANOSECONDS.sleep((long) (mTimeStep * 1e9) - mTimer.getElapsedTime()); }
+            try {
+                long sleepTime = (long) (mTimeStep * 1e9) - mTimer.getElapsedTime();
+                if(sleepTime < 0) {
+                   throw new IllegalStateException("Simulation is running too slow");
+                }
+                TimeUnit.NANOSECONDS.sleep(sleepTime);
+            }
             catch (InterruptedException e) { System.out.println(e.getMessage()); }
             mTimer.start();
         }

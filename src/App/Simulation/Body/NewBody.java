@@ -1,6 +1,7 @@
 package App.Simulation.Body;
 
 import App.Simulation.Body.BodyType;
+import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
 
 import java.awt.Shape;
@@ -20,4 +21,5 @@ public interface NewBody {
 
   public Shape getShape();
 
+  public LineSegment getLineSegment(double t);
 }
