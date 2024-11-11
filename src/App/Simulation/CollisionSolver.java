@@ -52,8 +52,13 @@ public class CollisionSolver {
 
     particle.updatePosition(timeToCollision);
     Vec2 normalCollisionVector = new Vec2(line.p1().y() - line.p2().y(), line.p2().x() - line.p1().x());
-    if (Vec2.dotProduct(particle.velocity(), normalCollisionVector) > 0) { normalCollisionVector.negate(); }
-    particle.setVelocity(solverKey, Vec2.subtract(particle.velocity(), Vec2.scale(normalCollisionVector, 2 * Vec2.dotProduct(particle.velocity(), normalCollisionVector) / Vec2.lengthSquared(normalCollisionVector))));
+    double dotProduct = Vec2.dotProduct(particle.velocity(), normalCollisionVector);
+    if(dotProduct > 0) {
+      dotProduct = -1 * dotProduct;
+      normalCollisionVector.negate();
+    }
+    
+    particle.setVelocity(solverKey, Vec2.subtract(particle.velocity(), Vec2.scale(normalCollisionVector, 2 * dotProduct / Vec2.lengthSquared(normalCollisionVector))));
     particle.addToInternalTime(solverKey, timeToCollision);
     
   }

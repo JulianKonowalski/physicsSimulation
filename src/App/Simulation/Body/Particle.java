@@ -12,6 +12,7 @@ public class Particle implements Body {
   public Particle(Vec2 position, Vec2 velocity, double mass, double radius) {
     mPosition = position;
     mVelocity = velocity;
+    mDirection = Vec2.normalize(mVelocity);
     mMass = mass;
     mRadius = radius;
   }
@@ -29,13 +30,14 @@ public class Particle implements Body {
   @Override
   public Vec2 predictedPosition(double t) { return Vec2.add(mPosition, Vec2.scale(mVelocity, t)); }
   @Override
-  public LineSegment getLineSegment(double t) { return new LineSegment(mPosition, predictedPosition(t)); }
+  public LineSegment getLineSegment(double t) { return new LineSegment(Vec2.add(mPosition, Vec2.scale(mDirection, mRadius)), Vec2.add(predictedPosition(t), Vec2.scale(mDirection, mRadius))); }
 
   public double radius() { return mRadius; }
   
   public void setVelocity(CollisionSolver.SolverKey solverKey, Vec2 velocity) {
     Objects.requireNonNull(solverKey);
     mVelocity = velocity;
+    mDirection = Vec2.normalize(mVelocity);
   }
 
   public void addToInternalTime(CollisionSolver.SolverKey solverKey, double timeDelta) {
@@ -44,14 +46,6 @@ public class Particle implements Body {
   }
 
   public void updatePosition(double t) { mPosition.add(Vec2.scale(mVelocity, t)); }
-
-  // public void resolveLineCollision(double timeToCollision, LineSegment line) {
-  //   mPosition = Vec2.add(mPosition, Vec2.scale(mVelocity, timeToCollision));
-  //   Vec2 normalCollisionVector = new Vec2(line.p1().y() - line.p2().y(), line.p2().x() - line.p1().x());
-  //   if (Vec2.dotProduct(mVelocity, normalCollisionVector) > 0) { normalCollisionVector.negate(); }
-  //   mVelocity = Vec2.subtract(mVelocity, Vec2.scale(normalCollisionVector, 2 * Vec2.dotProduct(mVelocity, normalCollisionVector) / Vec2.lengthSquared(normalCollisionVector)));
-  //   mInternalTime += timeToCollision;
-  // }
 
   public void lastUpdate(double timeStep) { //actual, global time step
     double timeRemaining = timeStep - mInternalTime; 
@@ -77,6 +71,7 @@ public class Particle implements Body {
 
   Vec2 mPosition;
   Vec2 mVelocity;
+  Vec2 mDirection;
   double mMass;
   double mRadius;
   double mInternalTime;

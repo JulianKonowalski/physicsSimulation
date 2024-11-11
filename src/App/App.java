@@ -13,6 +13,7 @@ public class App {
     public void run() {
         mLogger.log("App", "Started the app");
         mPanel.startSimulation();
+        mLogger.log("App", "Closed the app\n");
         mLogger.close();
     }
 
