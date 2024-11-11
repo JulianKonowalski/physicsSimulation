@@ -1,8 +1,6 @@
 package App.Simulation;
 
-import App.Simulation.Body.Body;
-import App.Simulation.Body.Line;
-import App.Simulation.Body.Particle;
+import App.Simulation.Body.*;
 import App.Simulation.Util.FutureCollisionData;
 import App.Simulation.Util.Pair;
 import App.Simulation.Util.Vec2;
@@ -16,8 +14,10 @@ public class Simulation {
     mTimestep = timestep;
     mCollisionSolver = new CollisionSolver();
     mCollisionDetector = new CollisionDetector(mTimestep);
-    List<Line> walls = new ArrayList<>();
-    List<Particle> particles = new ArrayList<>();
+    List<StaticBody> walls = new ArrayList<>();
+    List<DynamicBody> particles = new ArrayList<>();
+
+//    particles.add(new Particle(new Vec2(100, 100), new Vec2(-100, -100), 5.0, 8));
 
     particles.add(new Particle(new Vec2(100, 100), new Vec2(100, 200), 5.0, 10));
     particles.add(new Particle(new Vec2(200, 200), new Vec2(-100, 200), 5.0, 10));
@@ -31,7 +31,7 @@ public class Simulation {
     walls.add(new Line(new Vec2(1280, 720), new Vec2(0, 720), 2.0));
     walls.add(new Line(new Vec2(0, 720), new Vec2(0, 0), 2.0));
 
-    walls.add(new Line(new Vec2(0, 0), new Vec2(720, 720), 2.0));
+//    walls.add(new Line(new Vec2(0, 0), new Vec2(720, 720), 2.0));
 
     mState = new SimulationState(walls, particles);
   }
@@ -39,20 +39,20 @@ public class Simulation {
   public SimulationState getState() { return mState; }
 
   public void update() {
-    List<Particle> particles = mState.getParticles();
+    List<DynamicBody> particles = mState.getDynamicBodies();
     List<Body> bodies = mState.getBodies();
     TreeSet<FutureCollisionData> q = new TreeSet<>();
     do {
-      for (Particle current : particles) {
+      for (DynamicBody current : particles) {
         //TODO: tutaj powinno być zawężanie listy boidies i do closestCollision() powinny trafiać tylko te z którymi jest szansa na zderzenie
         Pair<Double, Body> closestToCurrent = mCollisionDetector.closestCollision(current, bodies);
         if (closestToCurrent != null) {
-          q.add(new FutureCollisionData(current, closestToCurrent.first, closestToCurrent.second)); //tree map automatycznie sortuje
+          q.add(new FutureCollisionData(current, closestToCurrent.first(), closestToCurrent.second())); //tree map automatycznie sortuje
         }
       }
-      if(!q.isEmpty()) { mCollisionSolver.resolveCollision(q); }
+      if(!q.isEmpty()) {mCollisionSolver.resolveCollision(q); }
     } while (!q.isEmpty()); //jak jest puste to znaczy że można przesunąć wszystkie w "normalny" sposób
-    for (Particle particle : particles) {
+    for (DynamicBody particle : particles) {
       particle.lastUpdate(mTimestep);
     }
   }

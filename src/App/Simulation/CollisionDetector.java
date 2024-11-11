@@ -1,63 +1,133 @@
 package App.Simulation;
 
 import App.Simulation.Body.Body;
+import App.Simulation.Body.DynamicBody;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Pair;
 import App.Simulation.Util.Vec2;
+
 import java.util.List;
 
 public class CollisionDetector {
 
-  public CollisionDetector(double timestep) { mTimestep = timestep; }
+  public CollisionDetector(double timestep) {
+    mTimestep = timestep;
+  }
 
-  public Pair<Double, Body> closestCollision(Particle current, List<Body> bodies) {
+  public Pair<Double, Body> closestCollision(DynamicBody current, List<Body> bodies) {
     Pair<Double, Body> closest = null;
     for (Body other : bodies) {
-      if (other == current) { continue; }
-      Double timeToCollision = timeToCollision(current, other);
-      if (timeToCollision != null && timeToCollision > 0 && timeToCollision < mTimestep && (closest == null || timeToCollision < closest.first)) {
+      if (other == current) {
+        continue;
+      }
+      //assumes current is a particle
+      Double timeToCollision = timeToCollision((Particle) current, other);
+      if (timeToCollision != null && timeToCollision > 0 && timeToCollision < mTimestep && (closest == null || timeToCollision < closest.first())) {
         closest = new Pair<>(timeToCollision, other);
       }
     }
-    if (closest != null) { System.out.println(current  + " collided with " + closest.second); } //TODO: delete this, it's slow af
+    if (closest != null) {
+      System.out.println(current + " collided with " + closest.second());
+    } //TODO: delete this, it's slow af
     return closest;
   }
 
   private Double timeToCollision(Particle particle, Body collider) {
     switch (collider.type()) {
-      case PARTICLE -> { return timeToParticleParticleCollision(particle, (Particle)collider); }
-      case LINE -> { return timeToLineParticleCollision(particle, (Line)collider); }
-      default -> { return null; }
+      case PARTICLE -> {
+        return timeToParticleParticleCollision(particle, (Particle) collider);
+      }
+      case LINE -> {
+        return timeToLineParticleCollision(particle, (Line) collider);
+      }
+      default -> {
+        return null;
+      }
     }
   }
 
   private Double timeToParticleParticleCollision(Particle particle1, Particle particle2) {
-    Double timeToIntersection = LineSegment.timeToIntersection(particle1.getLineSegment(mTimestep), particle2.getLineSegment(mTimestep));
-    if(timeToIntersection == null) { return null; }
+    Double timeToIntersection = timeToIntersection(particle1.getLineSegment(mTimestep), particle2.getLineSegment(mTimestep));
+    if (timeToIntersection == null) {
+      return null;
+    }
     Vec2 predictedPosition1 = particle1.predictedPosition(timeToIntersection);
     Vec2 predictedPosition2 = particle2.predictedPosition(timeToIntersection);
-    if(Vec2.distance(predictedPosition1, predictedPosition2) <= particle1.radius() + particle2.radius()) {
+    if (Vec2.distance(predictedPosition1, predictedPosition2) <= particle1.radius() + particle2.radius()) {
       return timeToIntersection * mTimestep;
     }
     return null;
   }
 
   private Double timeToLineParticleCollision(Particle particle, Line line) {
-    Double timeToIntersection = LineSegment.timeToIntersection(particle.getLineSegment(mTimestep), line.getLineSegment(mTimestep));
-    if(timeToIntersection == null) { return null; }
 
-    /* TODO:something is wrong here - the timeToRewind sometimes is greater than timeToIntersection */
-    Vec2 normalCollisionVector = new Vec2(line.p1().y() - line.p2().y(), line.p2().x() - line.p1().x());
-    double dotProduct = Vec2.dotProduct(particle.velocity(), normalCollisionVector);
-    if(dotProduct > 0) {
-      dotProduct = -1 * dotProduct;
-      normalCollisionVector.negate();
+    Vec2 closestPointOffset = Vec2.scale(Vec2.negate(Vec2.normalize(line.NormalToPoint(particle.position()))), particle.radius());
+    LineSegment particleDisplacement = particle.getLineSegment(mTimestep);
+    LineSegment closestPointDisplacement = LineSegment.move(particleDisplacement, closestPointOffset);
+    Double timeToIntersection = timeToIntersection(closestPointDisplacement, line);
+    if (timeToIntersection == null) { return null; }
+    return timeToIntersection * mTimestep;
+  }
+
+  // returns t in [0, 1] if there is an intersection
+  private static Double timeToIntersection(LineSegment line, LineSegment against) {
+    Vec2 r = Vec2.subtract(line.p2(), line.p1());
+    Vec2 s = Vec2.subtract(against.p2(), against.p1());
+
+    Vec2 p1 = line.p1();
+    Vec2 p2 = line.p2();
+    Vec2 q1 = against.p1();
+    Vec2 q2 = against.p2();
+
+    double uNumerator = Vec2.crossProduct(Vec2.subtract(q1, p1), r);
+    double denominator = Vec2.crossProduct(r, s);
+
+    if (uNumerator == 0 && denominator == 0) {
+      // They are collinear
+
+      // Do they touch? (Are any of the points equal?)
+      if (Vec2.equals(p1, q1) || Vec2.equals(p1, q2)) {
+        return 0.0;
+      }
+      if (Vec2.equals(p1, q1) || Vec2.equals(p2, q2)) {
+        return 1.0;
+      }
+      // Do they overlap? (Are all the point differences in either direction the same sign)
+      Double time = timeForCollinear(p1.x(), p2.x(), q1.x(), q2.x());
+      if (time != null) {
+        return time;
+      }
+      time = timeForCollinear(p1.y(), p2.y(), q1.y(), q2.y());
+      return time;
     }
-    Double timeToRewind = particle.radius() / Vec2.length(Vec2.scale(normalCollisionVector, dotProduct / Vec2.lengthSquared(normalCollisionVector)));
 
-    return (timeToIntersection - timeToRewind) * mTimestep;
+    if (denominator == 0) {
+      // lines are parallel
+      return null;
+    }
+
+    double u = uNumerator / denominator;
+    double t = Vec2.crossProduct(Vec2.subtract(q1, p1), s) / denominator;
+
+    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1) ? t : null;
+  }
+
+  private static boolean allEqual(boolean... values) {
+    for (int i = 1; i < values.length; i++) {
+      if (values[i] != values[0]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private static Double timeForCollinear(double A, double B, double C, double D) { //A is starting point of move
+    if (allEqual(C - A < 0, C - B < 0, D - A < 0, D - B < 0)) {
+      return null;
+    }
+    return Math.min(Math.abs(A - C), Math.abs(A - D)) / Math.abs(B - A);
   }
 
   private final double mTimestep;

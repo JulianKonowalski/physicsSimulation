@@ -1,9 +1,9 @@
 package App.Simulation.Util;
 
 import App.Simulation.Body.Body;
-import App.Simulation.Body.Particle;
+import App.Simulation.Body.DynamicBody;
 
-public record FutureCollisionData(Particle body, double timeToCollision, Body collider) implements Comparable<FutureCollisionData> {
+public record FutureCollisionData(DynamicBody body, double timeToCollision, Body collider) implements Comparable<FutureCollisionData> {
 
   @Override
   public int compareTo(FutureCollisionData o) {

@@ -2,36 +2,29 @@ package App.Simulation.Body;
 
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
+
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Line extends LineSegment implements Body {
+public class Line extends LineSegment implements StaticBody {
 
   public Line(Vec2 P1, Vec2 P2, double thickness) {
     super(P1, P2);
     mShape = constructShape(thickness);
+    A = p1().y() - p2().y();
+    B = p2().x() - p1().x();
+    C = - A * p1().x() - B * p1().y();
   }
 
   @Override
-  public boolean isDynamic() { return false; }
-  @Override
-  public BodyType type() { return BodyType.LINE; }
-  @Override
-  public Vec2 position() { return Vec2.zero(); }
-  @Override
-  public Vec2 velocity() { return Vec2.zero(); }
-  @Override
-  public double mass() { return 0.0; }
-  @Override
-  public Vec2 predictedPosition(double t) { return Vec2.zero(); }
+  public Type type() { return Type.LINE; }
   @Override
   public LineSegment getLineSegment(double t) { return this; }
   @Override
   public Shape getShape() { return mShape; }
-
   private Path2D constructShape(double thickness) {
     Path2D path = new Path2D.Double();
     List<Line2D> lines = new ArrayList<>();
@@ -45,10 +38,23 @@ public class Line extends LineSegment implements Body {
     lines.add(new Line2D.Double(point2.x(), point2.y(), point3.x(), point3.y()));
     lines.add(new Line2D.Double(point3.x(), point3.y(), point4.x(), point4.y()));
     lines.add(new Line2D.Double(point4.x(), point4.y(), point1.x(), point1.y()));
-    for(Line2D line : lines) { path.append(line, path.getCurrentPoint() != null); }
+    for (Line2D line : lines) {
+      path.append(line, path.getCurrentPoint() != null);
+    }
     path.closePath();
     return path;
   }
 
+  public Vec2 NormalToPoint(Vec2 point) {
+    double V = A * point.x() + B * point.y() + C;
+    if (V == 0) {
+      return null;
+    }
+    return V > 0 ? new Vec2(A, B) : new Vec2(-A, -B);
+  }
+
+  private final double A;
+  private final double B;
+  private final double C;
   private final Path2D mShape;
 }

@@ -4,16 +4,23 @@ import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.FutureCollisionData;
 import App.Simulation.Util.Vec2;
+
 import java.util.TreeSet;
 
 public class CollisionSolver {
 
   public void resolveCollision(TreeSet<FutureCollisionData> q) {
+    //TODO: more than 1 collision at a time
     FutureCollisionData currentData = q.first();
+    // assumes current is a particle
     switch (currentData.collider().type()) {
-        case PARTICLE -> { particleParticleCollision(currentData.body(), (Particle)currentData.collider()); }
-        case LINE -> { particleLineCollision(currentData); }
-        default -> {/* doNothing */}
+      case PARTICLE -> {
+        particleParticleCollision((Particle) currentData.body(), (Particle) currentData.collider());
+      }
+      case LINE -> {
+        particleLineCollision(currentData);
+      }
+      default -> {/* doNothing */}
     }
     q.remove(currentData);
   }
@@ -45,25 +52,25 @@ public class CollisionSolver {
   }
 
   private void particleLineCollision(FutureCollisionData data) {
-
-    Particle particle = data.body();
-    Line line = (Line)data.collider();
+    // assumes current is a particle
+    Particle particle = (Particle) data.body();
+    Line line = (Line) data.collider();
     double timeToCollision = data.timeToCollision();
 
     particle.updatePosition(timeToCollision);
-    Vec2 normalCollisionVector = new Vec2(line.p1().y() - line.p2().y(), line.p2().x() - line.p1().x());
-    double dotProduct = Vec2.dotProduct(particle.velocity(), normalCollisionVector);
-    if(dotProduct > 0) {
+    Vec2 normalLineVector = new Vec2(line.p1().y() - line.p2().y(), line.p2().x() - line.p1().x());
+    double dotProduct = Vec2.dotProduct(particle.velocity(), normalLineVector);
+    if (dotProduct > 0) {
       dotProduct = -1 * dotProduct;
-      normalCollisionVector.negate();
+      normalLineVector.negate();
     }
-    
-    particle.setVelocity(solverKey, Vec2.subtract(particle.velocity(), Vec2.scale(normalCollisionVector, 2 * dotProduct / Vec2.lengthSquared(normalCollisionVector))));
+
+    particle.setVelocity(solverKey, Vec2.subtract(particle.velocity(), Vec2.scale(normalLineVector, 2 * dotProduct / Vec2.lengthSquared(normalLineVector))));
     particle.addToInternalTime(solverKey, timeToCollision);
-    
+
   }
 
-  public static final class SolverKey { private SolverKey(){}; }
-  private static final SolverKey solverKey = new SolverKey();
+  public static final class SolverKey { private SolverKey() {} }
 
+  private static final SolverKey solverKey = new SolverKey();
 }
