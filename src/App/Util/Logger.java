@@ -8,58 +8,31 @@ import java.time.format.DateTimeFormatter;
 
 public class Logger {
 
-    public Logger(String filePath, String dateFormat) {
-        try {
-            FileWriter fileWriter = new FileWriter(filePath, true);
-            mOut = new BufferedWriter(fileWriter);
-            mFormatter = DateTimeFormatter.ofPattern(dateFormat);
-            mIsActive = true;
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            mIsActive = false;
-        }
-    }
+  public Logger(String filePath, String dateFormat) throws IOException {
+    FileWriter fileWriter = new FileWriter(filePath, true);
+    mOut = new BufferedWriter(fileWriter);
+    mFormatter = DateTimeFormatter.ofPattern(dateFormat);
+  }
 
-    public boolean isActive() { return mIsActive; }
+  public void setFilePath(String filePath) throws IOException {
+    mOut.close();
+    FileWriter fileWriter = new FileWriter(filePath, true);
+    mOut = new BufferedWriter(fileWriter);
+  }
 
-    public void setFilePath(String filePath) {
-        try {
-            mOut.close();
-            mIsActive = false;
-            FileWriter fileWriter = new FileWriter(filePath, true);
-            mOut = new BufferedWriter(fileWriter);
-            mIsActive = true;
-        } catch (IOException e) {
-            this.log("Logger", e.getMessage());
-        }
-    }
+  public boolean log(String source, String message) throws IOException {
+    String log = makeLog(source + " | " + message);
+    mOut.write(log, 0, log.length());
+    return true;
+  }
 
-    public boolean log(String source, String message) {
-        String log = makeLog(source + " | " + message);
-        try {
-            mOut.write(log, 0, log.length());
-            return true;
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
-    }
+  public void close() throws IOException { mOut.close(); }
 
-    public void close() {
-        try {
-            mOut.close();
-            mIsActive = false;
-        } catch (IOException e) {
-            this.log("Logger", e.getMessage());
-        }
-    }
+  private String makeLog(String message) {
+    String timestamp = LocalDateTime.now().format(mFormatter);
+    return timestamp + " | " + message + "\n";
+  }
 
-    private String makeLog(String message) {
-        String timestamp = LocalDateTime.now().format(mFormatter);
-        return timestamp + " | " + message + "\n";
-    }
-
-    Boolean mIsActive;
-    BufferedWriter mOut;
-    DateTimeFormatter mFormatter;
+  BufferedWriter mOut;
+  DateTimeFormatter mFormatter;
 }
