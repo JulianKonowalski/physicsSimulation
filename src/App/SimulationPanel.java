@@ -25,7 +25,6 @@ public class SimulationPanel extends JPanel {
   }
 
   public void drawScene(List<Body> bodies) { //what client calls
-    if(bodies == null) { return; } //it'll drop a frame
     mBodies = bodies;
     repaint(); //internal method, calls paintComponent
   }
@@ -55,6 +54,7 @@ public class SimulationPanel extends JPanel {
   }
 
   private void draw(Graphics2D g2d) {
+    if(mBodies == null) { return; }
     int i = 0;
     for (Body body : mBodies) {
       g2d.fill(body.getShape());

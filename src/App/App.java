@@ -1,11 +1,16 @@
 package App;
 
-import App.FileHandlers.Logger;
-import App.FileHandlers.SimulationFileWriter;
+import App.FileHandlers.*;
 import App.Simulation.Simulation;
+import App.Util.Pair;
 import App.Util.Timer;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class App implements Runnable {
 
@@ -14,9 +19,8 @@ public class App implements Runnable {
     mWindow = new Window();
     mPanel = mWindow.setup(windowTitle, windowWidth, windowHeight, FPS);
     mTimer = new Timer();
-    mSimulation = new Simulation(mTimestep);
-    mSimulationThread = new Thread(this);
     openLogger(logFilePath, logDateFormat);
+    mSimulation = new Simulation(mTimestep, (String source, String message) -> { this.log(source, message); });
     openSimulationFileWriter("physicsSimulation.sim", windowWidth, windowHeight, FPS);
   }
 
@@ -38,13 +42,29 @@ public class App implements Runnable {
     this.closeFileStreams();
   }
 
-  private void openLogger(String logFilePath, String logDateFormat) {
+  private void frameSync() { //delay a frame to match the target FPS
     try {
-      mLogger = new Logger(logFilePath, logDateFormat);
+      long sleepTime = (long) (mTimestep * 1e9) - mTimer.getElapsedTime();
+      if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
+      TimeUnit.NANOSECONDS.sleep(sleepTime);
+    } catch (InterruptedException e) {
+      System.out.println(e.getMessage());
+      System.exit(0);
+    }
+  }
+
+  private void openLogger(String logFilePath, String logDateFormat) {
+    sLogs = new ArrayList<>();
+    sLoggerLock = new ReentrantLock();
+    sLoggerCondition = sLoggerLock.newCondition(); 
+    try {
+      mLogger = new Logger(logFilePath, logDateFormat, sLogs, sLoggerLock, sLoggerCondition);
     } catch (IOException e) {
       System.out.println(e.getMessage());
       System.exit(0);
     }
+    Thread loggerThread = new Thread(mLogger);
+    loggerThread.start();
   }
 
   private void openSimulationFileWriter(String filePath, int windowWidth, int windowHeight, int FPS) {
@@ -60,12 +80,13 @@ public class App implements Runnable {
   }
 
   private void log(String source, String message) {
+    sLoggerLock.lock();
     try {
-      mLogger.log(source, message);
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-      System.exit(0);
-    }
+      sLogs.add(new Pair<>(source, message));
+      sLoggerCondition.signalAll();   
+    } finally {
+      sLoggerLock.unlock();
+    }   
   }
 
   private void writeFrame() {
@@ -77,20 +98,19 @@ public class App implements Runnable {
     }
   }
 
-  private void frameSync() { //delay a frame to match the target FPS
+  private void closeLogger() {
+    sLoggerLock.lock();
     try {
-      long sleepTime = (long) (mTimestep * 1e9) - mTimer.getElapsedTime();
-      if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
-      TimeUnit.NANOSECONDS.sleep(sleepTime);
-    } catch (InterruptedException e) {
-      System.out.println(e.getMessage());
-      System.exit(0);
+      mLogger.close();
+      sLoggerCondition.signalAll();
+    } finally {
+      sLoggerLock.unlock();
     }
   }
 
   private void closeFileStreams() {
+    closeLogger();
     try {
-      mLogger.close();
       mFileWriter.close();
     } catch (IOException e) {
       System.out.println(e.getMessage());
@@ -103,8 +123,11 @@ public class App implements Runnable {
   private final SimulationPanel mPanel;
   private final Timer mTimer;
   private final Simulation mSimulation;
-  private final Thread mSimulationThread;
   
+  private static List<Pair<String, String>> sLogs;
+  private static Lock sLoggerLock;
+  private static Condition sLoggerCondition;
   private Logger mLogger;
+
   private SimulationFileWriter mFileWriter;
 }

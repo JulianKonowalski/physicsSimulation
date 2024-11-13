@@ -1,19 +1,22 @@
 package App.Simulation;
 
+import App.FileHandlers.LoggingInterface;
 import App.Simulation.Body.*;
 import App.Simulation.Util.FutureCollisionData;
-import App.Simulation.Util.Pair;
 import App.Simulation.Util.Vec2;
+import App.Util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
 public class Simulation {
 
-  public Simulation(double timestep) {
+  public Simulation(double timestep, LoggingInterface logger) {
     mTimestep = timestep;
     mCollisionSolver = new CollisionSolver();
     mCollisionDetector = new CollisionDetector(mTimestep);
+    mLogger = logger;
+
     List<StaticBody> walls = new ArrayList<>();
     List<DynamicBody> particles = new ArrayList<>();
 
@@ -50,7 +53,10 @@ public class Simulation {
           q.add(new FutureCollisionData(current, closestToCurrent.first(), closestToCurrent.second())); //tree map automatycznie sortuje
         }
       }
-      if(!q.isEmpty()) {mCollisionSolver.resolveCollision(q); }
+      if(!q.isEmpty()) { 
+        mLogger.log("Simulation", q.first().body()+ " collided with " + q.first().collider());
+        mCollisionSolver.resolveCollision(q); 
+      }
     } while (!q.isEmpty()); //jak jest puste to znaczy że można przesunąć wszystkie w "normalny" sposób
     for (DynamicBody particle : particles) {
       particle.lastUpdate(mTimestep);
@@ -59,6 +65,7 @@ public class Simulation {
 
   private final SimulationState mState;
   private final double mTimestep;
+  private final LoggingInterface mLogger;
   private final CollisionSolver mCollisionSolver;
   private final CollisionDetector mCollisionDetector;
 }
