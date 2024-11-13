@@ -19,9 +19,7 @@ public class CollisionDetector {
   public Pair<Double, Body> closestCollision(DynamicBody current, List<Body> bodies) {
     Pair<Double, Body> closest = null;
     for (Body other : bodies) {
-      if (other == current) {
-        continue;
-      }
+      if (other == current) { continue; }
       //assumes current is a particle
       Double timeToCollision = timeToCollision((Particle) current, other);
       if (timeToCollision != null && 0 < timeToCollision && timeToCollision <= mTimestep && (closest == null || timeToCollision < closest.first())) {
@@ -36,15 +34,9 @@ public class CollisionDetector {
 
   private Double timeToCollision(Particle particle, Body collider) {
     switch (collider.type()) {
-      case PARTICLE -> {
-        return timeToParticleParticleCollision(particle, (Particle) collider);
-      }
-      case LINE -> {
-        return timeToLineParticleCollision(particle, (Line) collider);
-      }
-      default -> {
-        return null;
-      }
+      case PARTICLE -> { return timeToParticleParticleCollision(particle, (Particle) collider); }
+      case LINE -> { return timeToLineParticleCollision(particle, (Line) collider); }
+      default -> { return null; }
     }
   }
 

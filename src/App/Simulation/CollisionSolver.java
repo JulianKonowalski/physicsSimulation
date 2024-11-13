@@ -32,19 +32,19 @@ public class CollisionSolver {
     particle1.updatePosition(timeToCollision);
     particle2.updatePosition(timeToCollision);
 
-    Vec2 deltaS = Vec2.subtract(particle1.position(), particle2.position());
-    Vec2 deltaV = Vec2.subtract(particle1.velocity(), particle2.velocity());
-    double dotProduct = Vec2.dotProduct(deltaV, deltaS);
-    double normSquared = Vec2.lengthSquared(deltaS);
+    Vec2 S = Vec2.subtract(particle1.position(), particle2.position());
+    Vec2 V = Vec2.subtract(particle1.velocity(), particle2.velocity());
+    double dotProduct = Vec2.dotProduct(V, S);
+    double normSquared = Vec2.lengthSquared(S);
     double velocityCoefficient = dotProduct / normSquared;
 
     double inverseMassSum = 1.0 / (particle1.mass() + particle2.mass());
     double massCoefficient1 = 2 * particle2.mass() * inverseMassSum;
     double massCoefficient2 = 2 * particle1.mass() * inverseMassSum;
 
-    Vec2 newParticle1Velocity = Vec2.subtract(particle1.velocity(), Vec2.scale(deltaS, massCoefficient1 * velocityCoefficient));
-    deltaS.negate();
-    Vec2 newParticle2Velocity = Vec2.subtract(particle2.velocity(), Vec2.scale(deltaS, massCoefficient2 * velocityCoefficient));
+    Vec2 newParticle1Velocity = Vec2.subtract(particle1.velocity(), Vec2.scale(S, massCoefficient1 * velocityCoefficient));
+    S.negate();
+    Vec2 newParticle2Velocity = Vec2.subtract(particle2.velocity(), Vec2.scale(S, massCoefficient2 * velocityCoefficient));
 
     particle1.setVelocity(solverKey, newParticle1Velocity);
     particle2.setVelocity(solverKey, newParticle2Velocity);

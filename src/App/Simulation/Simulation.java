@@ -8,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-
-import java.util.function.Function;
-
 public class Simulation {
 
   public Simulation(double timestep) {
