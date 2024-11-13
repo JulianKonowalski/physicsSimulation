@@ -1,3 +1,5 @@
 *.class
+*.log
+*.sim
 bin/
 .vscode/

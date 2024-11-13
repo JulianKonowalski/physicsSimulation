@@ -1,78 +1,61 @@
 package App.Simulation.Body;
 
-import App.Simulation.CollidableInterface.Collidable;
-import App.Simulation.CollidableInterface.CollisionVisitor;
+import App.Simulation.CollisionSolver;
+import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
-import java.awt.Shape;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.util.Objects;
 
-public class Particle extends Body {
+public class Particle extends DynamicBody {
 
-    public Particle(boolean isStatic, Vec2 position, Vec2 velocity, Vec2 acceleration, double mass, double radius) {
-        super(isStatic, position, velocity, acceleration, mass);
-        if (radius < 0) { throw new IllegalArgumentException("Tried to set a negative particle radius"); }
-        mVertices.add(new Vec2(0.0, 0.0));
-        mRadius = radius;
+  public Particle(Vec2 position, Vec2 velocity, double mass, double radius) {
+    super(position, velocity, mass);
+    mRadius = radius;
+  }
+
+  public double radius() { return mRadius; }
+
+  // DynamicBody interface
+  @Override
+  public Vec2 predictedPosition(double t) { return Vec2.add(mPosition, Vec2.scale(mVelocity, t)); }
+  @Override
+  public void updatePosition(double t) {
+    mPosition.add(Vec2.scale(mVelocity, t));
+    mInternalTime += t;
+  }
+  @Override
+  public void lastUpdate(double timeStep) { //actual, global time step
+    double timeRemaining = timeStep - mInternalTime;
+    try {
+      if(timeRemaining < 0) { throw new Exception("Negative remaining time - Skasuj windowsa"); }
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      System.exit(0);
     }
+    mPosition.add(Vec2.scale(mVelocity, timeRemaining));
+    mInternalTime = 0;
+  }
+  @Override
+  public void setVelocity(CollisionSolver.SolverKey solverKey, Vec2 velocity) {
+    Objects.requireNonNull(solverKey);
+    mVelocity = velocity;
+    mDirection = Vec2.normalize(mVelocity);
+  }
 
-    public double radius() { return mRadius; }
+  // Body interface
+  @Override
+  public Type type() { return Type.PARTICLE; }
+  @Override
+  public Shape getShape() {
+    return new Ellipse2D.Double(
+            mPosition.x() - mRadius,
+            mPosition.y() - mRadius,
+            2.0 * mRadius,
+            2.0 * mRadius);
+  }
+  @Override
+  public LineSegment getLineSegment(double t) { return new LineSegment(mPosition, predictedPosition(t)); }
 
-    @Override
-    public int type() { return PARTICLE; }
-
-    @Override
-    public boolean intersects(Body body) {
-        if(mIsStatic) { return false; }
-        switch(body.type()) {
-            case LINE -> { return intersectsWithLine((Line)body); }
-            case PARTICLE -> { return intersectsWithParticle((Particle)body); }
-            default -> { return false; }
-        }
-    }
-
-    @Override
-    public void update(double timeStep) { //in seconds
-        if(!mIsStatic) {
-            mVelocity.add(Vec2.scale(mAcceleration, timeStep));
-            mPosition.add(Vec2.scale(mVelocity, timeStep));
-        }
-    }
-
-    @Override
-    public Shape getShape() {
-        return new Ellipse2D.Double(
-        this.position().x() - this.radius(), 
-        this.position().y() - this.radius(), 
-        2.0 * this.radius(), 
-        2.0 * this.radius()
-        );
-    }
-
-    @Override
-    public void accept(CollisionVisitor visitor, Collidable other) { visitor.visit(this, other); }
-
-    private boolean intersectsWithLine(Line line) {
-        if(Vec2.distance(mPosition, line.start()) <= mRadius) { return true; }
-        else if(Vec2.distance(mPosition, line.end()) <= mRadius) { return true; }
-
-        double dotProduct = (
-                (mPosition.x() - line.start().x()) * (line.end().x() - line.start().x()) + (mPosition.y() - line.start().y()) * (line.end().y() - line.start().y())
-            ) / (
-                line.length() * line.length()
-            );
-
-        Vec2 closestPoint = new Vec2(
-            line.start().x() + (dotProduct * (line.end().x() - line.start().x())),
-            line.start().y() + (dotProduct * (line.end().y() - line.start().y()))
-        );
-
-        return line.includesPoint(closestPoint) && Vec2.distance(mPosition, closestPoint) <= mRadius;
-    }
-
-    private boolean intersectsWithParticle(Particle particle) {
-        return Vec2.distance(mPosition, particle.position()) <= mRadius + particle.radius();
-    }
-
-    /* MEMBER VARIABLES */
-    private final double mRadius;
+  double mRadius;
 }
