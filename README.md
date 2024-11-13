@@ -5,7 +5,7 @@ This is a 2D physics simulation written in Java. It simulates the interaction be
 
 ## Types of bodies
 The app currently supports two types of bodies:
-* Particles (static and dynamic)
+* Particles (dynamic)
 * Lines (static)
 
 As the name suggests, static bodies remain static throughout the simulation, no matter the forces acting on them. On the other hand, dynamic bodies have their speed and position recalculated every frame.
