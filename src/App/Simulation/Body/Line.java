@@ -2,7 +2,6 @@ package App.Simulation.Body;
 
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
-
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -13,7 +12,8 @@ public class Line extends LineSegment implements StaticBody {
 
   public Line(Vec2 P1, Vec2 P2, double thickness) {
     super(P1, P2);
-    mShape = constructShape(thickness);
+    mThickness = thickness;
+    mShape = constructShape(mThickness);
     A = p1().y() - p2().y();
     B = p2().x() - p1().x();
     C = - A * p1().x() - B * p1().y();
@@ -25,6 +25,7 @@ public class Line extends LineSegment implements StaticBody {
   public LineSegment getLineSegment(double t) { return this; }
   @Override
   public Shape getShape() { return mShape; }
+  public double thickness() { return mThickness; }
   private Path2D constructShape(double thickness) {
     Path2D path = new Path2D.Double();
     List<Line2D> lines = new ArrayList<>();
@@ -57,4 +58,5 @@ public class Line extends LineSegment implements StaticBody {
   private final double B;
   private final double C;
   private final Path2D mShape;
+  private final double mThickness;
 }

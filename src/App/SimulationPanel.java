@@ -2,9 +2,6 @@ package App;
 
 import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
-import App.Simulation.Simulation;
-import App.Util.Timer;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,17 +9,13 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import javax.swing.JPanel;
 
-public class SimulationPanel extends JPanel implements Runnable {
+public class SimulationPanel extends JPanel {
 
   public SimulationPanel(int width, int height, int FPS) {
     mScreenWidth = width;
     mScreenHeight = height;
-    mTimeStep = 1.0 / FPS;
-    mTimer = new Timer();
-    mSimulation = new Simulation(mTimeStep);
     mMouseHandler = new MouseHandler();
     this.setPreferredSize(new Dimension(mScreenWidth, mScreenHeight));
     this.setBackground(Color.black);
@@ -31,40 +24,20 @@ public class SimulationPanel extends JPanel implements Runnable {
     this.setFocusable(true);
   }
 
-  public void startSimulation() {
-    mSimulationThread = new Thread(this);
-    mSimulationThread.start();
-  }
-
-  @Override
-  public void run() {
-    mTimer.start();
-    while (mSimulationThread != null) {
-      resolveMouseEvents();
-      mSimulation.update();
-      repaint();
-      try {
-        long sleepTime = (long) (mTimeStep * 1e9) - mTimer.getElapsedTime();
-//                if(sleepTime < 0) {
-//                   throw new IllegalStateException("Simulation is running too slow");
-//                }
-        TimeUnit.NANOSECONDS.sleep(sleepTime);
-      } catch (InterruptedException e) {
-        System.out.println(e.getMessage());
-      }
-      mTimer.start();
-    }
+  public void drawScene(List<Body> bodies) { //what client calls
+    mBodies = bodies;
+    repaint(); //internal method, calls paintComponent
   }
 
   @Override
   public void paintComponent(Graphics g) {
     super.paintComponent(g);
     Graphics2D g2d = setupG2D(g);
-    drawScene(g2d);
+    draw(g2d); //this does the drawing
     g2d.dispose();
   }
 
-  private void resolveMouseEvents() {
+  public void resolveMouseEvents() {
     if (mMouseHandler.mouseClicked()) {
       MouseEvent event = mMouseHandler.getLastEvent();
       event.getX();
@@ -80,23 +53,20 @@ public class SimulationPanel extends JPanel implements Runnable {
     return g2d;
   }
 
-  private void drawScene(Graphics2D g2d) {
-    List<DynamicBody> dynamicBodies = mSimulation.getState().getDynamicBodies();
+  private void draw(Graphics2D g2d) {
     int i = 0;
-    for (DynamicBody body : dynamicBodies) {
+    for (Body body : mBodies) {
       g2d.fill(body.getShape());
-      String message = "Body " + i + " speed: (" + (int) body.velocity().x() + ", " + (int) body.velocity().y() + ")";
-      g2d.drawString(message, 5, 30 + i * 15);
-      ++i;
+      if (body instanceof DynamicBody dynamicBody) {
+        String message = "Body " + i + " speed: (" + (int) dynamicBody.velocity().x() + ", " + (int) dynamicBody.velocity().y() + ")";
+        g2d.drawString(message, 5, 30 + i * 15);
+        ++i;
+      }
     }
   }
 
-
+  private List<Body> mBodies;  
   private final int mScreenWidth;
   private final int mScreenHeight;
-  private final double mTimeStep;
-  private final Timer mTimer;
-  private final Simulation mSimulation;
-  private Thread mSimulationThread;
   private final MouseHandler mMouseHandler;
 }
