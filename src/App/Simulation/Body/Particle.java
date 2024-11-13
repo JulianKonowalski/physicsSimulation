@@ -20,7 +20,11 @@ public class Particle extends DynamicBody {
   @Override
   public Vec2 predictedPosition(double t) { return Vec2.add(mPosition, Vec2.scale(mVelocity, t)); }
   @Override
-  public void updatePosition(double t) { mPosition.add(Vec2.scale(mVelocity, t)); }
+  public void updatePosition(double t) {
+    mPosition.add(Vec2.scale(mVelocity, t));
+    mInternalTime += t;
+
+  }
   @Override
   public void lastUpdate(double timeStep) { //actual, global time step
     double timeRemaining = timeStep - mInternalTime;
@@ -38,11 +42,6 @@ public class Particle extends DynamicBody {
     Objects.requireNonNull(solverKey);
     mVelocity = velocity;
     mDirection = Vec2.normalize(mVelocity);
-  }
-  @Override
-  public void addToInternalTime(CollisionSolver.SolverKey solverKey, double timeDelta) {
-    Objects.requireNonNull(solverKey);
-    mInternalTime += timeDelta;
   }
 
   // Body interface

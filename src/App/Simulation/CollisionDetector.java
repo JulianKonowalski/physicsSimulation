@@ -24,7 +24,7 @@ public class CollisionDetector {
       }
       //assumes current is a particle
       Double timeToCollision = timeToCollision((Particle) current, other);
-      if (timeToCollision != null && timeToCollision > 0 && timeToCollision < mTimestep && (closest == null || timeToCollision < closest.first())) {
+      if (timeToCollision != null && 0 < timeToCollision && timeToCollision <= mTimestep && (closest == null || timeToCollision < closest.first())) {
         closest = new Pair<>(timeToCollision, other);
       }
     }
@@ -48,17 +48,27 @@ public class CollisionDetector {
     }
   }
 
-  private Double timeToParticleParticleCollision(Particle particle1, Particle particle2) {
-    Double timeToIntersection = timeToIntersection(particle1.getLineSegment(mTimestep), particle2.getLineSegment(mTimestep));
-    if (timeToIntersection == null) {
-      return null;
-    }
-    Vec2 predictedPosition1 = particle1.predictedPosition(timeToIntersection);
-    Vec2 predictedPosition2 = particle2.predictedPosition(timeToIntersection);
-    if (Vec2.distance(predictedPosition1, predictedPosition2) <= particle1.radius() + particle2.radius()) {
-      return timeToIntersection * mTimestep;
-    }
-    return null;
+  public Double timeToParticleParticleCollision(Particle particle1, Particle particle2) {
+
+    Vec2 V = Vec2.subtract(particle1.velocity(), particle2.velocity()); //delta V
+    Vec2 S = Vec2.subtract(particle1.position(), particle2.position()); //delta S
+    double R = particle1.radius() + particle2.radius();
+    double RSquared = R * R;
+    double crossProduct = Vec2.crossProduct(S, V);
+    double crossProductSquared = crossProduct * crossProduct;
+    double VNormSquared = Vec2.lengthSquared(V);
+
+    double discriminant = RSquared * VNormSquared - crossProductSquared;
+    if(discriminant <= 0) { return null; }
+
+    double dotProduct = Vec2.dotProduct(S, V);
+    double inverseVNormSquared = 1.0 / VNormSquared;
+    double discriminantSqrt = Math.sqrt(discriminant);
+
+    double t1 = (-dotProduct - discriminantSqrt) * inverseVNormSquared;
+    double t2 = (-dotProduct + discriminantSqrt) * inverseVNormSquared;
+
+    return Math.min(t1, t2);
   }
 
   private Double timeToLineParticleCollision(Particle particle, Line line) {
@@ -81,10 +91,10 @@ public class CollisionDetector {
     Vec2 q1 = against.p1();
     Vec2 q2 = against.p2();
 
-    double uNumerator = Vec2.crossProduct(Vec2.subtract(q1, p1), r);
+    double tNumerator =Vec2.crossProduct(Vec2.subtract(q1, p1), s);
     double denominator = Vec2.crossProduct(r, s);
 
-    if (uNumerator == 0 && denominator == 0) {
+    if (tNumerator == 0 && denominator == 0) {
       // They are collinear
 
       // Do they touch? (Are any of the points equal?)
@@ -108,10 +118,11 @@ public class CollisionDetector {
       return null;
     }
 
-    double u = uNumerator / denominator;
-    double t = Vec2.crossProduct(Vec2.subtract(q1, p1), s) / denominator;
+    double t = tNumerator / denominator;
+    double u = Vec2.crossProduct(Vec2.subtract(q1, p1), r) / denominator;
 
-    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1) ? t : null;
+    return  (0 <= u) && (u <= 1) ? t : null; //wydaje się że ten warunek starcza, ale trzeba przetestować na liniach które są w pudełku
+//    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1) ? t : null;
   }
 
   private static boolean allEqual(boolean... values) {

@@ -25,7 +25,6 @@ abstract public class DynamicBody implements Body {
   abstract public void updatePosition(double t);
   abstract public void lastUpdate(double timeStep);
   abstract public void setVelocity(CollisionSolver.SolverKey solverKey, Vec2 velocity);
-  abstract public void addToInternalTime(CollisionSolver.SolverKey solverKey, double timeDelta);
 
   // Body interface
   @Override

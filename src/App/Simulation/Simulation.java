@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
+
+import java.util.function.Function;
+
 public class Simulation {
 
   public Simulation(double timestep) {
@@ -17,21 +20,21 @@ public class Simulation {
     List<StaticBody> walls = new ArrayList<>();
     List<DynamicBody> particles = new ArrayList<>();
 
-//    particles.add(new Particle(new Vec2(100, 100), new Vec2(-100, -100), 5.0, 8));
+    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400), 10, 10));
+    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),  16, 16));
+    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),  24, 24));
+    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200), 32, 32));
 
-    particles.add(new Particle(new Vec2(100, 100), new Vec2(100, 200), 5.0, 10));
-    particles.add(new Particle(new Vec2(200, 200), new Vec2(-100, 200), 5.0, 10));
-    particles.add(new Particle(new Vec2(300, 300), new Vec2(200, 100), 5.0, 10));
-    particles.add(new Particle(new Vec2(400, 400), new Vec2(-200, -100), 5.0, 10));
+    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400), 10, 10));
+    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),  16, 16));
+    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200),  24, 24));
+    particles.add(new Particle(new Vec2(1000, 400), new Vec2(-400, -200), 32, 32));
 
-    //particles.add(new Particle(new Vec2(320, 400), new Vec2(50, 0), 5.0, 10));
 
     walls.add(new Line(new Vec2(0, 0), new Vec2(1280, 0), 2.0));
     walls.add(new Line(new Vec2(1280, 0), new Vec2(1280, 720), 2.0));
     walls.add(new Line(new Vec2(1280, 720), new Vec2(0, 720), 2.0));
     walls.add(new Line(new Vec2(0, 720), new Vec2(0, 0), 2.0));
-
-//    walls.add(new Line(new Vec2(0, 0), new Vec2(720, 720), 2.0));
 
     mState = new SimulationState(walls, particles);
   }
