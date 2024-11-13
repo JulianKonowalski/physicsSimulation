@@ -23,7 +23,6 @@ public class Particle extends DynamicBody {
   public void updatePosition(double t) {
     mPosition.add(Vec2.scale(mVelocity, t));
     mInternalTime += t;
-
   }
   @Override
   public void lastUpdate(double timeStep) { //actual, global time step
