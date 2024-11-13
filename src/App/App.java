@@ -15,10 +15,40 @@ public class App implements Runnable {
     mTimer = new Timer();
     mSimulation = new Simulation(mTimestep);
     mSimulationThread = new Thread(this);
+    openLogger(logFilePath, logDateFormat);
+    openSimulationFileWriter("physicsSimulation.sim", windowWidth, windowHeight, FPS);
+  }
 
-    try {//TODO: offload this to a specialised method
-      mFileWriter = new SimulationFileWriter("physicsSimulation.sim");
+  @Override
+  public void run() {
+    this.log("App", "Started the app");
+    mTimer.start();
+
+    while (mSimulationThread != null) { //MAIN LOOP
+      mPanel.resolveMouseEvents();
+      mSimulation.update();
+      mPanel.drawScene(mSimulation.getState().getBodies());
+      this.writeFrame();
+      this.frameSync();
+      mTimer.start();
+    }
+
+    this.log("App", "Closed the app\n");
+    this.closeFileStreams();
+  }
+
+  private void openLogger(String logFilePath, String logDateFormat) {
+    try {
       mLogger = new Logger(logFilePath, logDateFormat);
+    } catch (IOException e) {
+      System.out.println(e.getMessage());
+      System.exit(0);
+    }
+  }
+
+  private void openSimulationFileWriter(String filePath, int windowWidth, int windowHeight, int FPS) {
+    try {
+      mFileWriter = new SimulationFileWriter(filePath);
       mFileWriter.writeHeader(windowWidth, windowHeight, FPS);
       mFileWriter.writeStaticBodies(mSimulation.getState().getStaticBodies());
       mFileWriter.writeDynamicBodies(mSimulation.getState().getDynamicBodies());
@@ -28,42 +58,18 @@ public class App implements Runnable {
     }
   }
 
-  @Override
-  public void run() {
-    try {//TODO: offload this to a specialised method
-      mLogger.log("App", "Started the app");
+  private void log(String source, String message) {
+    try {
+      mLogger.log(source, message);
     } catch (IOException e) {
       System.out.println(e.getMessage());
       System.exit(0);
     }
-    mTimer.start();
+  }
 
-    while (mSimulationThread != null) { //MAIN LOOP
-      mPanel.resolveMouseEvents();
-      mSimulation.update();
-      mPanel.drawScene(mSimulation.getState().getBodies());
-
-      try {//TODO: offload this to a specialised method
-          mFileWriter.writeFrame(mSimulation.getState().getDynamicBodies());
-      } catch (IOException e) {
-        System.out.println(e.getMessage());
-        System.exit(0);
-      }
-
-      this.frameSync();
-      mTimer.start();
-    }
-
-    try {//TODO: offload this to a specialised method
-      mLogger.log("App", "Closed the app\n");
-    } catch (IOException e) {
-      System.out.println(e.getMessage());
-      System.exit(0);
-    }
-
-    try {//TODO: offload this to a specialised method
-      mLogger.close();
-      mFileWriter.close();
+  private void writeFrame() {
+    try {
+      mFileWriter.writeFrame(mSimulation.getState().getDynamicBodies());
     } catch (IOException e) {
       System.out.println(e.getMessage());
       System.exit(0);
@@ -76,6 +82,16 @@ public class App implements Runnable {
       if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
       TimeUnit.NANOSECONDS.sleep(sleepTime);
     } catch (InterruptedException e) {
+      System.out.println(e.getMessage());
+      System.exit(0);
+    }
+  }
+
+  private void closeFileStreams() {
+    try {
+      mLogger.close();
+      mFileWriter.close();
+    } catch (IOException e) {
       System.out.println(e.getMessage());
       System.exit(0);
     }

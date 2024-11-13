@@ -4,7 +4,6 @@ import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.FutureCollisionData;
 import App.Simulation.Util.Vec2;
-
 import java.util.TreeSet;
 
 public class CollisionSolver {
@@ -21,7 +20,7 @@ public class CollisionSolver {
     q.remove(currentData); //dodać usuwanie odpowiadającego zdarzenia
   }
 
-  private void particleParticleCollision(FutureCollisionData data) { //TODO: implement particle-particle collisions
+  private void particleParticleCollision(FutureCollisionData data) {
     flag = !flag; //to jest potrzebne bo kolizje są wykrywane dwa razy na ten moment
     if(flag) {return;}
 
