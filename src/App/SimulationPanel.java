@@ -55,6 +55,7 @@ public class SimulationPanel extends JPanel {
   }
 
   private void draw(Graphics2D g2d) {
+    if(mBodies == null) { return; }
     int i = 0;
     for (Body body : mBodies) {
       g2d.fill(body.getShape());

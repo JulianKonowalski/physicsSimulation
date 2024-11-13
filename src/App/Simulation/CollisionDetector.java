@@ -5,9 +5,8 @@ import App.Simulation.Body.DynamicBody;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.LineSegment;
-import App.Simulation.Util.Pair;
 import App.Simulation.Util.Vec2;
-
+import App.Util.Pair;
 import java.util.List;
 
 public class CollisionDetector {
@@ -26,9 +25,9 @@ public class CollisionDetector {
         closest = new Pair<>(timeToCollision, other);
       }
     }
-    if (closest != null) {
-      System.out.println(current + " collided with " + closest.second());
-    } //TODO: delete this, it's slow af
+    // if (closest != null) {
+    //   System.out.println(current + " collided with " + closest.second());
+    // }
     return closest;
   }
 
