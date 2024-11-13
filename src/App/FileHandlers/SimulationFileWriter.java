@@ -1,4 +1,4 @@
-package App;
+package App.FileHandlers;
 
 import App.Simulation.Body.Body;
 import App.Simulation.Body.Body.Type;

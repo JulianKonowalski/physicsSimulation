@@ -1,7 +1,8 @@
 package App;
 
+import App.FileHandlers.Logger;
+import App.FileHandlers.SimulationFileWriter;
 import App.Simulation.Simulation;
-import App.Util.Logger;
 import App.Util.Timer;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,7 @@ public class App implements Runnable {
     this.log("App", "Started the app");
     mTimer.start();
 
-    while (mSimulationThread != null) { //MAIN LOOP
+    while (mWindow.isActive()) { //MAIN LOOP
       mPanel.resolveMouseEvents();
       mSimulation.update();
       mPanel.drawScene(mSimulation.getState().getBodies());
