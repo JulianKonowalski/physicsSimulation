@@ -6,27 +6,43 @@ import App.Simulation.Body.DynamicBody;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Body.StaticBody;
-import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
+/*
+ * BRIEF
+ * This class saves the whole simulation into a .sim file
+ * 
+ * FILE STRUCTURE
+ * File begins with a header containing:
+ * -screenWidth
+ * -screenHeight
+ * -FPS
+ * -staticBodies section size
+ * -dynamicBodies section size
+ * -frame data section size
+ * 
+ * staticBodies section contains all static bodies listed one after another
+ * with their types and positions
+ * 
+ * dynamicBodies section contains all dynamic bodies listed one after
+ * another with their types, positions
+ * 
+ * frame data section contains the positions of all of the dynamicBody
+ * objects in a specific frame. Each frame has the same size, so the 
+ * header saves the size of one frame, not the whole data payload.
+ * Each objects' data is always kept in the same place within the frame
+ * data structure
+ */
 
 public class SimulationFileWriter {
 
   public SimulationFileWriter(String filePath) throws IOException {
     mPayloadSize = 0;
-    mFilePath = filePath;
-    mOut = new DataOutputStream(
-      Files.newOutputStream(
-        Path.of(mFilePath), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
-      )
-    );
+    mFrameSize = null;
+    mFile = new RandomAccessFile(filePath, "rw");
   }
 
   public void writeHeader(int screenWidth, int screenHeight, int FPS) throws IOException {
@@ -34,64 +50,70 @@ public class SimulationFileWriter {
     sectionPayload += writeInt(screenWidth);
     sectionPayload += writeInt(screenHeight);
     sectionPayload += writeInt(FPS);
+    mPlaceholderDataPosition = mFile.getFilePointer();
+    for(int i = 0; i < 3; ++i) { sectionPayload += writeInt(0); } //placeholder data
     mPayloadSize += sectionPayload;
   }
 
   public void writeStaticBodies(List<StaticBody> bodies) throws IOException {
     int sectionPayload = 0;
-    sectionPayload += writeInt(Tags.STATIC_BODIES_START.ordinal());
     for (Body body : bodies) {
       switch (body.type()) {
         case Type.LINE -> { sectionPayload += writeLine((Line)body); }
         default -> {/* doNothing */}
       }
     }
-    sectionPayload += writeInt(Tags.STATIC_BODIES_END.ordinal());
+    mStaticBodiesSize = sectionPayload;
     mPayloadSize += sectionPayload;
   }
 
   public void writeDynamicBodies(List<DynamicBody> bodies) throws IOException {
     int sectionPayload = 0;
-    sectionPayload += writeInt(Tags.DYNAMIC_BODIES_START.ordinal());
     for (Body body : bodies) {
       switch (body.type()) {
         case Type.PARTICLE -> { sectionPayload += writeParticle((Particle)body); }
         default -> {/* doNothing */}
       }
     }
-    sectionPayload += writeInt(Tags.DYNAMIC_BODIES_END.ordinal());
+    mDynamicBodiesSize = sectionPayload;
     mPayloadSize += sectionPayload;
   }
 
   public void writeFrame(List<DynamicBody> bodies) throws IOException {
     int sectionPayload = 0;
-    sectionPayload += writeInt(Tags.START_FRAME.ordinal());
     for(DynamicBody body : bodies) {
       sectionPayload += writeDouble(body.position().x());
       sectionPayload += writeDouble(body.position().y());
     }
-    sectionPayload += writeInt(Tags.END_FRAME.ordinal());
+    if (mFrameSize == null) { mFrameSize = sectionPayload; }
     mPayloadSize += sectionPayload;
   }
-
-  public void close() throws IOException { 
-    mOut.close(); 
-    cleanup();
+  
+  @SuppressWarnings("ConvertToTryWithResources")
+  public void close() throws IOException {
+    try {
+      writeSectionData();
+      mFile.getChannel().truncate(mPayloadSize); //remove any incomplete data that might have been written to the file
+      mFile.close();
+    } catch (FileNotFoundException e) { //this will never happen, the file is created with the object
+      System.out.println(e.getMessage());
+      System.exit(0);
+    }
   }
 
   private int writeInt(int data) throws IOException {
-    mOut.writeInt(data);
+    mFile.writeInt(data);
     return Integer.SIZE / 8;
   }
 
   private int writeDouble(double data) throws IOException {
-    mOut.writeDouble(data);
+    mFile.writeDouble(data);
     return Double.SIZE / 8;
   }
 
   private int writeParticle(Particle particle) throws IOException {
     int sectionPayload = 0;
-    sectionPayload += writeInt(Tags.PARTICLE.ordinal());
+    sectionPayload += writeInt(Body.Type.PARTICLE.ordinal());
     sectionPayload += writeDouble(particle.position().x());
     sectionPayload += writeDouble(particle.position().y());
     sectionPayload += writeDouble(particle.radius());
@@ -100,7 +122,7 @@ public class SimulationFileWriter {
 
   private int writeLine(Line line) throws IOException {
     int sectionPayload = 0;
-    sectionPayload += writeInt(Tags.LINE.ordinal());
+    sectionPayload += writeInt(Body.Type.LINE.ordinal());
     sectionPayload += writeDouble(line.p1().x());
     sectionPayload += writeDouble(line.p1().y());
     sectionPayload += writeDouble(line.p2().x());
@@ -109,31 +131,17 @@ public class SimulationFileWriter {
     return sectionPayload;
   }
 
-  private void cleanup() throws IOException {
-    try(
-      RandomAccessFile file = new RandomAccessFile(mFilePath, "rw");
-      FileChannel fileChannel = file.getChannel();
-    ) {
-      fileChannel.truncate(mPayloadSize);
-      file.close();
-    } catch (FileNotFoundException e) { //this will never happen, the file is created with the object
-      System.out.println(e.getMessage());
-      System.exit(0);
-    }
+  private void writeSectionData() throws IOException {
+    mFile.seek(mPlaceholderDataPosition);
+    mFile.writeInt(mStaticBodiesSize);
+    mFile.writeInt(mDynamicBodiesSize);
+    mFile.writeInt(mFrameSize);
   }
 
-  private enum Tags {
-    STATIC_BODIES_START,
-    STATIC_BODIES_END,
-    DYNAMIC_BODIES_START,
-    DYNAMIC_BODIES_END,
-    START_FRAME,
-    END_FRAME,
-    PARTICLE,
-    LINE,
-  }
-
+  private final RandomAccessFile mFile;
   private int mPayloadSize;
-  private final DataOutputStream mOut;
-  private final String mFilePath;
+  private long mPlaceholderDataPosition;
+  private int mStaticBodiesSize;
+  private int mDynamicBodiesSize;
+  private Integer mFrameSize;
 }
