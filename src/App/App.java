@@ -29,11 +29,11 @@ public class App implements Runnable {
     this.log("App", "Started the app");
     mTimer.start();
 
-    while (mWindow.isActive()) { //MAIN LOOP
+    while (mWindow.isDisplayable()) { //MAIN LOOP
       mPanel.resolveMouseEvents();
-      mSimulation.update();
       mPanel.drawScene(mSimulation.getState().getBodies());
       this.writeFrame();
+      mSimulation.update();
       this.frameSync();
       mTimer.start();
     }
@@ -44,12 +44,12 @@ public class App implements Runnable {
 
   private void frameSync() { //delay a frame to match the target FPS
     try {
-      long sleepTime = (long) (mTimestep * 1e9) - mTimer.getElapsedTime();
-      if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
+      long sleepTime = (long) Math.max(0, mTimestep * 1e9 - mTimer.getElapsedTime()) ;
+//      if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
       TimeUnit.NANOSECONDS.sleep(sleepTime);
     } catch (InterruptedException e) {
       System.out.println(e.getMessage());
-      System.exit(0);
+      System.exit(-1);
     }
   }
 

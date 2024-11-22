@@ -11,14 +11,14 @@ abstract public class DynamicBody implements Body {
   public DynamicBody(Vec2 position, Vec2 velocity, double mass) {
     mMass = mass;
     mVelocity = velocity;
-    mDirection = Vec2.normalize(mVelocity);
     mPosition = position;
-    mInternalTime = 0;
+    mTimeInternal = 0;
   }
 
   public Vec2 position() { return mPosition; }
   public Vec2 velocity() { return mVelocity; }
   public double mass() { return mMass; }
+  public double timeInternal() { return mTimeInternal; }
 
   // DynamicBody interface
   abstract public Vec2 predictedPosition(double t);
@@ -36,7 +36,6 @@ abstract public class DynamicBody implements Body {
 
   double mMass;
   Vec2 mVelocity;
-  Vec2 mDirection;
   Vec2 mPosition;
-  double mInternalTime;
+  double mTimeInternal;
 }

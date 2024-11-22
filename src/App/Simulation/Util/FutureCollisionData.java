@@ -2,12 +2,13 @@ package App.Simulation.Util;
 
 import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
+import App.Simulation.Body.Line;
 
-public record FutureCollisionData(DynamicBody body, double timeToCollision, Body collider) implements Comparable<FutureCollisionData> {
+public record FutureCollisionData(DynamicBody body, double timeOfCollision, Body collider) implements Comparable<FutureCollisionData> {
 
   @Override
   public int compareTo(FutureCollisionData o) {
-    int doubleCompare =  Double.compare(timeToCollision, o.timeToCollision);
+    int doubleCompare =  Double.compare(timeOfCollision, o.timeOfCollision);
     if (doubleCompare != 0) { return doubleCompare; } 
     else { return Integer.compare(body.hashCode(), o.body.hashCode()); }
   }

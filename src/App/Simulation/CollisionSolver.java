@@ -17,19 +17,16 @@ public class CollisionSolver {
       case LINE -> { particleLineCollision(currentData); }
       default -> {/* doNothing */}
     }
-    q.remove(currentData); //dodać usuwanie odpowiadającego zdarzenia
   }
 
   private void particleParticleCollision(FutureCollisionData data) {
-    flag = !flag; //to jest potrzebne bo kolizje są wykrywane dwa razy na ten moment
-    if(flag) {return;}
 
     Particle particle1 = (Particle) data.body();
-    double timeToCollision = data.timeToCollision();
+    double timeOfCollision = data.timeOfCollision();
     Particle particle2 = (Particle) data.collider();
 
-    particle1.updatePosition(timeToCollision);
-    particle2.updatePosition(timeToCollision);
+    particle1.updatePosition(timeOfCollision - particle1.timeInternal());
+    particle2.updatePosition(timeOfCollision - particle2.timeInternal());
 
     Vec2 S = Vec2.subtract(particle1.position(), particle2.position());
     Vec2 V = Vec2.subtract(particle1.velocity(), particle2.velocity());
@@ -53,14 +50,14 @@ public class CollisionSolver {
     // assumes current is a particle
     Particle particle = (Particle) data.body();
     Line line = (Line) data.collider();
-    double timeToCollision = data.timeToCollision();
+    double timeOfCollision = data.timeOfCollision();
 
-    particle.updatePosition(timeToCollision);
+    particle.updatePosition(timeOfCollision - particle.timeInternal());
 
     Vec2 normalLineVector = new Vec2(line.p1().y() - line.p2().y(), line.p2().x() - line.p1().x());
     double dotProduct = Vec2.dotProduct(particle.velocity(), normalLineVector);
     if (dotProduct > 0) {
-      dotProduct = -1 * dotProduct;
+      dotProduct *= -1;
       normalLineVector.negate();
     }
 
