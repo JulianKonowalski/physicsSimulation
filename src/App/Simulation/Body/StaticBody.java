@@ -1,8 +1,7 @@
 package App.Simulation.Body;
 
+import java.awt.Shape;
 import App.Simulation.Util.LineSegment;
-
-import java.awt.*;
 
 public interface StaticBody extends Body {
 

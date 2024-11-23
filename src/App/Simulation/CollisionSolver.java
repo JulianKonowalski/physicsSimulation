@@ -1,16 +1,16 @@
 package App.Simulation;
 
+import java.util.TreeSet;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.FutureCollisionData;
 import App.Simulation.Util.Vec2;
-import java.util.TreeSet;
 
 public class CollisionSolver {
 
   public void resolveCollision(TreeSet<FutureCollisionData> q) {
     //TODO: more than 1 collision at a time
-    FutureCollisionData currentData = q.first(); //trzeba sprawdzić czy odpowiadający obiekt też ma z nim pierwsze zderzenie
+    FutureCollisionData currentData = q.first();
     // assumes current is a particle
     switch (currentData.collider().type()) {
       case PARTICLE -> { particleParticleCollision(currentData); }

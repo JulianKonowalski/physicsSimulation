@@ -20,8 +20,8 @@ public class App implements Runnable {
     mPanel = mWindow.setup(windowTitle, windowWidth, windowHeight, FPS);
     mTimer = new Timer();
     openLogger(logFilePath, logDateFormat);
-    mSimulation = new Simulation(mTimestep, (String source, String message) -> { this.log(source, message); });
-    openSimulationFileWriter("physicsSimulation.sim", windowWidth, windowHeight, FPS);
+    mSimulation = new Simulation(mTimestep, this::log);
+    openSimulationFileWriter(windowWidth, windowHeight, FPS);
   }
 
   @Override
@@ -31,7 +31,7 @@ public class App implements Runnable {
 
     while (mWindow.isDisplayable()) { //MAIN LOOP
       mPanel.resolveMouseEvents();
-      mPanel.drawScene(mSimulation.getState().getBodies());
+      mPanel.drawScene(mSimulation.getState().Bodies());
       this.writeFrame();
       mSimulation.update();
       this.frameSync();
@@ -44,8 +44,9 @@ public class App implements Runnable {
 
   private void frameSync() { //delay a frame to match the target FPS
     try {
-      long sleepTime = (long) Math.max(0, mTimestep * 1e9 - mTimer.getElapsedTime()) ;
-//      if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
+//      long sleepTime = (long) Math.max(0, mTimestep * 1e9 - mTimer.getElapsedTime());
+      long sleepTime = (long) (mTimestep * 1e9 - mTimer.getElapsedTime());
+      if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
       TimeUnit.NANOSECONDS.sleep(sleepTime);
     } catch (InterruptedException e) {
       System.out.println(e.getMessage());
@@ -67,12 +68,12 @@ public class App implements Runnable {
     loggerThread.start();
   }
 
-  private void openSimulationFileWriter(String filePath, int windowWidth, int windowHeight, int FPS) {
+  private void openSimulationFileWriter(int windowWidth, int windowHeight, int FPS) {
     try {
-      mFileWriter = new SimulationFileWriter(filePath);
+      mFileWriter = new SimulationFileWriter("physicsSimulation.sim");
       mFileWriter.writeHeader(windowWidth, windowHeight, FPS);
-      mFileWriter.writeStaticBodies(mSimulation.getState().getStaticBodies());
-      mFileWriter.writeDynamicBodies(mSimulation.getState().getDynamicBodies());
+      mFileWriter.writeStaticBodies(mSimulation.getState().StaticBodies());
+      mFileWriter.writeDynamicBodies(mSimulation.getState().DynamicBodies());
     } catch (IOException e) {
       System.out.println(e.getMessage());
       System.exit(0);
@@ -91,7 +92,7 @@ public class App implements Runnable {
 
   private void writeFrame() {
     try {
-      mFileWriter.writeFrame(mSimulation.getState().getDynamicBodies());
+      mFileWriter.writeFrame(mSimulation.getState().DynamicBodies());
     } catch (IOException e) {
       System.out.println(e.getMessage());
       System.exit(0);

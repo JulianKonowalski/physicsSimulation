@@ -1,8 +1,7 @@
 package App.Simulation.Body;
 
-import App.Simulation.Util.LineSegment;
-
 import java.awt.Shape;
+import App.Simulation.Util.LineSegment;
 
 public interface Body {
 

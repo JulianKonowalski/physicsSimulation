@@ -1,12 +1,12 @@
 package App.Simulation.Body;
 
-import App.Simulation.Util.LineSegment;
-import App.Simulation.Util.Vec2;
 import java.awt.Shape;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
+import App.Simulation.Util.LineSegment;
+import App.Simulation.Util.Vec2;
 
 public class Line extends LineSegment implements StaticBody {
 
@@ -76,5 +76,4 @@ public class Line extends LineSegment implements StaticBody {
   private final double A, B, C;
   private final Path2D mShape;
   private final double mThickness;
-//  public boolean toDelete = false;
 }

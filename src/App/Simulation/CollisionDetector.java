@@ -1,15 +1,13 @@
 package App.Simulation;
 
+import java.util.List;
 import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
 import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
-import java.util.List;
-
 import App.Simulation.Util.FutureCollisionData;
-import App.Simulation.Util.LineSegment;
 
 public class CollisionDetector {
 
@@ -76,7 +74,7 @@ public class CollisionDetector {
     double discriminantSqrt = Math.sqrt(discriminant);
 
     double t1 = (-dotProduct - discriminantSqrt) * inverseVNormSquared;
-//    double t2 = (-dotProduct + discriminantSqrt) * inverseVNormSquared;
+//    double t2 = (-dotProduct + discriminantSqrt) * inverseVNormSquared; //the other solution
 
     return timeInitial + t1;
   }

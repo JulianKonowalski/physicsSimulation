@@ -1,13 +1,12 @@
 package App.Simulation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 import App.FileHandlers.LoggingInterface;
 import App.Simulation.Body.*;
 import App.Simulation.Util.FutureCollisionData;
 import App.Simulation.Util.Vec2;
-import App.Util.Pair;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
 
 public class Simulation {
 
@@ -23,18 +22,21 @@ public class Simulation {
 //    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
 //    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));
 
-    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
-    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
+//    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
+//    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
 
-//    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400),12));
-//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),16));
-//    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),24));
-//    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200),32));
-//    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400),12));
-//    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),16));
-//    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
-//    particles.add(new Particle(new Vec2(1000, 400), new Vec2(-400, -200),32));
-
+    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400),12));
+    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),16));
+    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),24));
+    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200),32));
+    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400),12));
+    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),16));
+    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200),32));
+    particles.add(new Particle(new Vec2(500, 100), new Vec2(200, 400),12));
+    particles.add(new Particle(new Vec2(500, 200), new Vec2(-200, 400),16));
+    particles.add(new Particle(new Vec2(500, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200),32));
 
     walls.add(new Line(new Vec2(0, 0), new Vec2(1280, 0), 2.0));
     walls.add(new Line(new Vec2(1280, 0), new Vec2(1280, 720), 2.0));
@@ -47,12 +49,10 @@ public class Simulation {
   public SimulationState getState() { return mState; }
 
   public void update() {
-    List<DynamicBody> particles = mState.getDynamicBodies();
-    List<Body> bodies = mState.getBodies();
+    List<DynamicBody> particles = mState.DynamicBodies();
+    List<Body> bodies = mState.Bodies();
     TreeSet<FutureCollisionData> q = new TreeSet<>();
     for (DynamicBody current : particles) {
-      //TODO: tutaj powinno być zawężanie listy boidies i do closestCollision() powinny trafiać tylko te z którymi jest szansa na zderzenie
-      // porównać sumę pędu z promieniem kulki do odległości S1 od S2
       List<Body> against = bodies.subList(bodies.indexOf(current) + 1, bodies.size());
 
       FutureCollisionData currentData = mCollisionDetector.closestCollision(current, against);
@@ -83,12 +83,11 @@ public class Simulation {
       if (resolvedData != null)
         q.add(resolvedData);
 
-    } //jak jest puste to znaczy że można przesunąć wszystkie w "normalny" sposób
+    }
     for (DynamicBody particle : particles) {
       particle.lastUpdate(mTimestep);
     }
   }
-
 
   private final SimulationState mState;
   private final double mTimestep;

@@ -1,10 +1,9 @@
 package App.Simulation.Body;
 
+import java.awt.Shape;
 import App.Simulation.CollisionSolver;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
-
-import java.awt.*;
 
 abstract public class DynamicBody implements Body {
 

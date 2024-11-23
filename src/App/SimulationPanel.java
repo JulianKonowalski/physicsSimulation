@@ -1,7 +1,5 @@
 package App;
 
-import App.Simulation.Body.Body;
-import App.Simulation.Body.DynamicBody;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,6 +8,8 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JPanel;
+import App.Simulation.Body.Body;
+import App.Simulation.Body.DynamicBody;
 
 public class SimulationPanel extends JPanel {
 
