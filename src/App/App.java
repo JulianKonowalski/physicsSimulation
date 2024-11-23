@@ -2,6 +2,7 @@ package App;
 
 import App.FileHandlers.*;
 import App.Simulation.Simulation;
+import App.Simulation.SimulationState;
 import App.Util.Pair;
 import App.Util.Timer;
 import java.io.IOException;
@@ -11,24 +12,31 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.lang.management.ManagementFactory;
 
 public class App implements Runnable {
 
-  public App(String windowTitle, int windowWidth, int windowHeight, int FPS, String logFilePath, String logDateFormat) {
+  public App(String windowTitle, int width, int height, int FPS, String logFilePath, String logDateFormat) {
     mTimestep = 1.0 / FPS;
-    mWindow = new Window();
-    mPanel = mWindow.setup(windowTitle, windowWidth, windowHeight, FPS);
+    mWidth = width;
+    mHeight = height;
     mTimer = new Timer();
     openLogger(logFilePath, logDateFormat);
-    mSimulation = new Simulation(mTimestep, this::log);
-    openSimulationFileWriter(windowWidth, windowHeight, FPS);
+
+    InitializationInterface init = new InitializationInterface(width, height);
+    SimulationState initialState = init.getInitialState();
+    mSimulation = new Simulation(initialState, mTimestep, this::log);
+    openSimulationFileWriter(width, height, FPS);
+
+    mWindow = new Window();
+    mPanel = mWindow.setup(windowTitle, width, height, FPS);
   }
 
   @Override
   public void run() {
     this.log("App", "Started the app");
-    mTimer.start();
 
+    mTimer.start();
     while (mWindow.isDisplayable()) { //MAIN LOOP
       mPanel.resolveMouseEvents();
       mPanel.drawScene(mSimulation.getState().Bodies());
@@ -44,8 +52,12 @@ public class App implements Runnable {
 
   private void frameSync() { //delay a frame to match the target FPS
     try {
-//      long sleepTime = (long) Math.max(0, mTimestep * 1e9 - mTimer.getElapsedTime());
       long sleepTime = (long) (mTimestep * 1e9 - mTimer.getElapsedTime());
+      if(isDebugging){
+        sleepTime = Math.max(0, sleepTime);
+        TimeUnit.NANOSECONDS.sleep(sleepTime);
+        return;
+      }
       if(sleepTime < 0) { throw new IllegalStateException("Simulation is running too slow"); }
       TimeUnit.NANOSECONDS.sleep(sleepTime);
     } catch (InterruptedException e) {
@@ -95,7 +107,7 @@ public class App implements Runnable {
       mFileWriter.writeFrame(mSimulation.getState().DynamicBodies());
     } catch (IOException e) {
       System.out.println(e.getMessage());
-      System.exit(0);
+      System.exit(-1);
     }
   }
 
@@ -120,15 +132,18 @@ public class App implements Runnable {
   }
 
   private final double mTimestep;
+  private final int mWidth;
+  private final int mHeight;
+  private final Simulation mSimulation;
+  private final Timer mTimer;
   private final Window mWindow;
   private final SimulationPanel mPanel;
-  private final Timer mTimer;
-  private final Simulation mSimulation;
-  
+
   private static List<Pair<String, String>> sLogs;
   private static Lock sLoggerLock;
   private static Condition sLoggerCondition;
   private Logger mLogger;
-
   private SimulationFileWriter mFileWriter;
+
+   public boolean isDebugging = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("-agentlib:jdwp");
 }

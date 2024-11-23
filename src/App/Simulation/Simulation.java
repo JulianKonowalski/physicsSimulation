@@ -10,40 +10,12 @@ import App.Simulation.Util.Vec2;
 
 public class Simulation {
 
-  public Simulation(double timestep, LoggingInterface logger) {
+  public Simulation(SimulationState initialState, double timestep, LoggingInterface logger) {
+    mState = initialState;
     mTimestep = timestep;
-    mCollisionSolver = new CollisionSolver();
     mCollisionDetector = new CollisionDetector(mTimestep);
+    mCollisionSolver = new CollisionSolver();
     mLogger = logger;
-
-    List<StaticBody> walls = new ArrayList<>();
-    List<DynamicBody> particles = new ArrayList<>();
-
-//    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
-//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));
-
-//    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
-//    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
-
-    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400),12));
-    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),16));
-    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),24));
-    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200),32));
-    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400),12));
-    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),16));
-    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
-    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200),32));
-    particles.add(new Particle(new Vec2(500, 100), new Vec2(200, 400),12));
-    particles.add(new Particle(new Vec2(500, 200), new Vec2(-200, 400),16));
-    particles.add(new Particle(new Vec2(500, 300), new Vec2(400, 200), 24));
-    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200),32));
-
-    walls.add(new Line(new Vec2(0, 0), new Vec2(1280, 0), 2.0));
-    walls.add(new Line(new Vec2(1280, 0), new Vec2(1280, 720), 2.0));
-    walls.add(new Line(new Vec2(1280, 720), new Vec2(0, 720), 2.0));
-    walls.add(new Line(new Vec2(0, 720), new Vec2(0, 0), 2.0));
-
-    mState = new SimulationState(walls, particles);
   }
 
   public SimulationState getState() { return mState; }

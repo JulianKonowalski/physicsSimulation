@@ -3,6 +3,7 @@ package App;
 import javax.swing.JFrame;
 
 public class Window extends JFrame {
+
   public SimulationPanel setup(String title, int width, int height, int FPS){
     this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     this.setResizable(false);
