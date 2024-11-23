@@ -20,15 +20,20 @@ public class Simulation {
     List<StaticBody> walls = new ArrayList<>();
     List<DynamicBody> particles = new ArrayList<>();
 
-    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400), 10, 10));
-    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),  16, 16));
-    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),  24, 24));
-    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200), 32, 32));
+//    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
+//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));
 
-    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400), 10, 10));
-    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),  16, 16));
-    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200),  24, 24));
-    particles.add(new Particle(new Vec2(1000, 400), new Vec2(-400, -200), 32, 32));
+    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
+    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
+
+//    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400),12));
+//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),16));
+//    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),24));
+//    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200),32));
+//    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400),12));
+//    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),16));
+//    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
+//    particles.add(new Particle(new Vec2(1000, 400), new Vec2(-400, -200),32));
 
 
     walls.add(new Line(new Vec2(0, 0), new Vec2(1280, 0), 2.0));
@@ -45,23 +50,45 @@ public class Simulation {
     List<DynamicBody> particles = mState.getDynamicBodies();
     List<Body> bodies = mState.getBodies();
     TreeSet<FutureCollisionData> q = new TreeSet<>();
-    do {
-      for (DynamicBody current : particles) {
-        //TODO: tutaj powinno być zawężanie listy boidies i do closestCollision() powinny trafiać tylko te z którymi jest szansa na zderzenie
-        Pair<Double, Body> closestToCurrent = mCollisionDetector.closestCollision(current, bodies);
-        if (closestToCurrent != null) {
-          q.add(new FutureCollisionData(current, closestToCurrent.first(), closestToCurrent.second())); //tree map automatycznie sortuje
-        }
+    for (DynamicBody current : particles) {
+      //TODO: tutaj powinno być zawężanie listy boidies i do closestCollision() powinny trafiać tylko te z którymi jest szansa na zderzenie
+      // porównać sumę pędu z promieniem kulki do odległości S1 od S2
+      List<Body> against = bodies.subList(bodies.indexOf(current) + 1, bodies.size());
+
+      FutureCollisionData currentData = mCollisionDetector.closestCollision(current, against);
+      if (currentData != null)
+        q.add(currentData);
+    }
+
+    while (!q.isEmpty()){
+      mLogger.log("Simulation", q.first().body()+ " collided with " + q.first().collider());
+
+      mCollisionSolver.resolveCollision(q);
+      FutureCollisionData resolvedData = q.pollFirst();
+      if(resolvedData == null) {
+        break;
       }
-      if(!q.isEmpty()) { 
-        mLogger.log("Simulation", q.first().body()+ " collided with " + q.first().collider());
-        mCollisionSolver.resolveCollision(q); 
+
+      List<Body> against = new ArrayList<>(bodies);
+      against.remove(resolvedData.body());
+      against.remove(resolvedData.collider());
+
+      if(resolvedData.collider().type() == Body.Type.PARTICLE){
+        FutureCollisionData againstData = mCollisionDetector.closestCollision((DynamicBody) resolvedData.collider(), against);
+        if (againstData != null)
+          q.add(againstData);
       }
-    } while (!q.isEmpty()); //jak jest puste to znaczy że można przesunąć wszystkie w "normalny" sposób
+
+      resolvedData = mCollisionDetector.closestCollision(resolvedData.body(), against);
+      if (resolvedData != null)
+        q.add(resolvedData);
+
+    } //jak jest puste to znaczy że można przesunąć wszystkie w "normalny" sposób
     for (DynamicBody particle : particles) {
       particle.lastUpdate(mTimestep);
     }
   }
+
 
   private final SimulationState mState;
   private final double mTimestep;

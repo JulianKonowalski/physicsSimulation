@@ -25,6 +25,9 @@ public class Line extends LineSegment implements StaticBody {
   public LineSegment getLineSegment(double t) { return this; }
   @Override
   public Shape getShape() { return mShape; }
+  public double A() { return A; }
+  public double B() { return B; }
+  public double C() { return C; }
   public double thickness() { return mThickness; }
   private Path2D constructShape(double thickness) {
     Path2D path = new Path2D.Double();
@@ -46,6 +49,22 @@ public class Line extends LineSegment implements StaticBody {
     return path;
   }
 
+  public static Vec2 intersection(Line line1, Line line2) {
+    double a1 = line1.A(), b1 = line1.B(), c1 = line1.C();
+    double a2 = line2.A(), b2 = line2.B(), c2 = line2.C();
+
+    double denominator = a1 * b2 - a2 * b1;
+
+    if (denominator == 0) {
+      throw new IllegalArgumentException("Lines are parallel or coincident, no unique intersection point.");
+    }
+
+    double x = (b1 * c2 - b2 * c1) / denominator;
+    double y = (c1 * a2 - c2 * a1) / denominator;
+
+    return new Vec2(x, y);
+  }
+
   public Vec2 NormalToPoint(Vec2 point) {
     double V = A * point.x() + B * point.y() + C;
     if (V == 0) {
@@ -54,9 +73,8 @@ public class Line extends LineSegment implements StaticBody {
     return V > 0 ? new Vec2(A, B) : new Vec2(-A, -B);
   }
 
-  private final double A;
-  private final double B;
-  private final double C;
+  private final double A, B, C;
   private final Path2D mShape;
   private final double mThickness;
+//  public boolean toDelete = false;
 }

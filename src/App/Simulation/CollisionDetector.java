@@ -6,8 +6,10 @@ import App.Simulation.Body.Line;
 import App.Simulation.Body.Particle;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
-import App.Util.Pair;
 import java.util.List;
+
+import App.Simulation.Util.FutureCollisionData;
+import App.Simulation.Util.LineSegment;
 
 public class CollisionDetector {
 
@@ -15,34 +17,51 @@ public class CollisionDetector {
     mTimestep = timestep;
   }
 
-  public Pair<Double, Body> closestCollision(DynamicBody current, List<Body> bodies) {
-    Pair<Double, Body> closest = null;
-    for (Body other : bodies) {
+  public FutureCollisionData closestCollision(DynamicBody current, List<Body> against) {
+    FutureCollisionData closest = null;
+    for (Body other : against) {
       if (other == current) { continue; }
-      //assumes current is a particle
-      Double timeToCollision = timeToCollision((Particle) current, other);
-      if (timeToCollision != null && 0 < timeToCollision && timeToCollision <= mTimestep && (closest == null || timeToCollision < closest.first())) {
-        closest = new Pair<>(timeToCollision, other);
+      Double timeOfCollision = timeOfCollision((Particle) current, other);
+      if (timeOfCollision != null && current.timeInternal() <= timeOfCollision && timeOfCollision < mTimestep && (closest == null || timeOfCollision < closest.timeOfCollision())) {
+//        if(closest != null && closest.collider().type() == Body.Type.LINE && timeOfCollision == closest.timeOfCollision()) {
+//          Line closestLine = (Line) closest.collider();
+//          Line otherLine = (Line) other;
+//          Line cornerLine = constructCornerLine(closestLine, otherLine, current.position());
+//          closest = new FutureCollisionData(current, timeOfCollision, cornerLine);
+//        }
+//        else {
+          closest = new FutureCollisionData(current, timeOfCollision, other);
+//        }
       }
     }
-    // if (closest != null) {
-    //   System.out.println(current + " collided with " + closest.second());
-    // }
     return closest;
   }
 
-  private Double timeToCollision(Particle particle, Body collider) {
+  private Double timeOfCollision(Particle particle, Body collider) {
     switch (collider.type()) {
-      case PARTICLE -> { return timeToParticleParticleCollision(particle, (Particle) collider); }
-      case LINE -> { return timeToLineParticleCollision(particle, (Line) collider); }
+      case PARTICLE -> { return timeOfParticleParticleCollision(particle, (Particle) collider); }
+      case LINE -> { return timeOfLineParticleCollision(particle, (Line) collider); }
       default -> { return null; }
     }
   }
 
-  public Double timeToParticleParticleCollision(Particle particle1, Particle particle2) {
-
+  public Double timeOfParticleParticleCollision(Particle particle, Particle against) {
+    Particle particle1 = particle;
+    Particle particle2 = against;
+    double timeInitial = particle.timeInternal();
     Vec2 V = Vec2.subtract(particle1.velocity(), particle2.velocity()); //delta V
-    Vec2 S = Vec2.subtract(particle1.position(), particle2.position()); //delta S
+    Vec2 S; //delta S
+
+    if (particle.timeInternal() != against.timeInternal()) { //setting S to be difference between positions at the same initial time
+      particle1 = against.timeInternal() < particle.timeInternal() ? particle : against;
+      particle2 = particle1 == particle ? against : particle;
+      timeInitial = particle1.timeInternal();
+      Vec2 alignedPosition = particle2.predictedPosition(particle1.timeInternal() - particle2.timeInternal());
+      S = Vec2.subtract(particle1.position(), alignedPosition);
+    } else {
+      S = Vec2.subtract(particle1.position(), particle2.position());
+    }
+
     double R = particle1.radius() + particle2.radius();
     double RSquared = R * R;
     double crossProduct = Vec2.crossProduct(S, V);
@@ -57,79 +76,34 @@ public class CollisionDetector {
     double discriminantSqrt = Math.sqrt(discriminant);
 
     double t1 = (-dotProduct - discriminantSqrt) * inverseVNormSquared;
-    double t2 = (-dotProduct + discriminantSqrt) * inverseVNormSquared;
+//    double t2 = (-dotProduct + discriminantSqrt) * inverseVNormSquared;
 
-    return Math.min(t1, t2);
+    return timeInitial + t1;
   }
 
-  private Double timeToLineParticleCollision(Particle particle, Line line) {
+  private Double timeOfLineParticleCollision(Particle particle, Line against) {
 
-    Vec2 closestPointOffset = Vec2.scale(Vec2.negate(Vec2.normalize(line.NormalToPoint(particle.position()))), particle.radius());
-    LineSegment particleDisplacement = particle.getLineSegment(mTimestep);
+    Vec2 closestPointOffset = Vec2.scale(Vec2.negate(Vec2.normalize(against.NormalToPoint(particle.position()))), particle.radius());
+    double timeInternal = particle.timeInternal();
+    double timeRemaining = mTimestep - particle.timeInternal();
+
+    LineSegment particleDisplacement = particle.getLineSegment(timeRemaining);
     LineSegment closestPointDisplacement = LineSegment.move(particleDisplacement, closestPointOffset);
-    Double timeToIntersection = timeToIntersection(closestPointDisplacement, line);
+
+    Double timeToIntersection = LineSegment.timeToIntersection(closestPointDisplacement, against);
     if (timeToIntersection == null) { return null; }
-    return timeToIntersection * mTimestep;
+    return timeInternal + timeToIntersection * timeRemaining;
   }
 
-  // returns t in [0, 1] if there is an intersection
-  private static Double timeToIntersection(LineSegment line, LineSegment against) {
-    Vec2 r = Vec2.subtract(line.p2(), line.p1());
-    Vec2 s = Vec2.subtract(against.p2(), against.p1());
-
-    Vec2 p1 = line.p1();
-    Vec2 p2 = line.p2();
-    Vec2 q1 = against.p1();
-    Vec2 q2 = against.p2();
-
-    double tNumerator =Vec2.crossProduct(Vec2.subtract(q1, p1), s);
-    double denominator = Vec2.crossProduct(r, s);
-
-    if (tNumerator == 0 && denominator == 0) {
-      // They are collinear
-
-      // Do they touch? (Are any of the points equal?)
-      if (Vec2.equals(p1, q1) || Vec2.equals(p1, q2)) {
-        return 0.0;
-      }
-      if (Vec2.equals(p1, q1) || Vec2.equals(p2, q2)) {
-        return 1.0;
-      }
-      // Do they overlap? (Are all the point differences in either direction the same sign)
-      Double time = timeForCollinear(p1.x(), p2.x(), q1.x(), q2.x());
-      if (time != null) {
-        return time;
-      }
-      time = timeForCollinear(p1.y(), p2.y(), q1.y(), q2.y());
-      return time;
-    }
-
-    if (denominator == 0) {
-      // lines are parallel
-      return null;
-    }
-
-    double t = tNumerator / denominator;
-    double u = Vec2.crossProduct(Vec2.subtract(q1, p1), r) / denominator;
-
-    return  (0 <= u) && (u <= 1) ? t : null; //wydaje się że ten warunek starcza, ale trzeba przetestować na liniach które są w pudełku
-//    return (t >= 0) && (t <= 1) && (u >= 0) && (u <= 1) ? t : null;
-  }
-
-  private static boolean allEqual(boolean... values) {
-    for (int i = 1; i < values.length; i++) {
-      if (values[i] != values[0]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private static Double timeForCollinear(double A, double B, double C, double D) { //A is starting point of move
-    if (allEqual(C - A < 0, C - B < 0, D - A < 0, D - B < 0)) {
-      return null;
-    }
-    return Math.min(Math.abs(A - C), Math.abs(A - D)) / Math.abs(B - A);
+  private Line constructCornerLine(Line line1, Line line2, Vec2 position) {
+    Vec2 intersection = Line.intersection(line1, line2);
+    Vec2 relativePosition = Vec2.subtract(position, intersection);
+    Vec2 normalizedLine1Vector = Vec2.normalize(Vec2.subtract(line1.p2(), line1.p1()));
+    Vec2 normalizedLine2Vector = Vec2.normalize(Vec2.subtract(line2.p2(), line2.p1()));
+    normalizedLine1Vector = Vec2.dotProduct(relativePosition, normalizedLine1Vector) > 0 ? normalizedLine1Vector : Vec2.negate(normalizedLine1Vector);
+    normalizedLine2Vector = Vec2.dotProduct(relativePosition, normalizedLine2Vector) > 0 ? normalizedLine2Vector : Vec2.negate(normalizedLine2Vector);
+    Vec2 composition = Vec2.subtract(normalizedLine1Vector, normalizedLine2Vector);
+    return new Line(Vec2.subtract(intersection, composition), Vec2.add(intersection, composition), line1.thickness()); //trzeba to thickness wywalić
   }
 
   private final double mTimestep;

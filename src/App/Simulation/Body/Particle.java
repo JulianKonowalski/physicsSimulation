@@ -14,6 +14,11 @@ public class Particle extends DynamicBody {
     mRadius = radius;
   }
 
+  public Particle(Vec2 position, Vec2 velocity, double radius) {
+    super(position, velocity, radius * radius);
+    mRadius = radius;
+  }
+
   public double radius() { return mRadius; }
 
   // DynamicBody interface
@@ -22,25 +27,24 @@ public class Particle extends DynamicBody {
   @Override
   public void updatePosition(double t) {
     mPosition.add(Vec2.scale(mVelocity, t));
-    mInternalTime += t;
+    mTimeInternal += t;
   }
   @Override
-  public void lastUpdate(double timeStep) { //actual, global time step
-    double timeRemaining = timeStep - mInternalTime;
+  public void lastUpdate(double timestep) { //actual, global time step
+    double timeRemaining = timestep - mTimeInternal;
     try {
       if(timeRemaining < 0) { throw new Exception("Negative remaining time - Skasuj windowsa"); }
     } catch (Exception e) {
       System.out.println(e.getMessage());
-      System.exit(0);
+      System.exit(-1);
     }
     mPosition.add(Vec2.scale(mVelocity, timeRemaining));
-    mInternalTime = 0;
+    mTimeInternal = 0;
   }
   @Override
   public void setVelocity(CollisionSolver.SolverKey solverKey, Vec2 velocity) {
     Objects.requireNonNull(solverKey);
     mVelocity = velocity;
-    mDirection = Vec2.normalize(mVelocity);
   }
 
   // Body interface
@@ -55,7 +59,10 @@ public class Particle extends DynamicBody {
             2.0 * mRadius);
   }
   @Override
-  public LineSegment getLineSegment(double t) { return new LineSegment(mPosition, predictedPosition(t)); }
+  public LineSegment getLineSegment(double t) {
+    return new LineSegment(mPosition, predictedPosition(t));
+ //   return new LineSegment(mPosition, predictedPosition(t-mInternalTime));
+  }
 
   double mRadius;
 }
