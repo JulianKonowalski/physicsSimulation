@@ -106,8 +106,6 @@ public class CollisionDetector {
     return new Line(Vec2.subtract(intersection, composition), Vec2.add(intersection, composition), line1.thickness()); //trzeba to thickness wywalić
   }
 
-  private
-
   private final double mTimestep;
   private final double mEpsilon = Math.ulp(1.0);
 }
