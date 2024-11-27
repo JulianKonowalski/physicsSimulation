@@ -8,50 +8,25 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.management.ManagementFactory;
-
 
 public class InitializationInterface {
 
-  public InitializationInterface(int width, int height) {
-    mWidth = width;
-    mHeight = height;
+  public InitializationInterface() {
+
     mScanner = new Scanner(System.in);
   }
 
   public SimulationState getInitialState() {
 
-    List<DynamicBody> particles = new ArrayList<>();
-
     if (App.sOptions.isDebugging()) {
-
-//    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
-//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));
-
-//    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
-//    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
-
-      particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400), 12));
-      particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400), 16));
-      particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200), 24));
-      particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200), 32));
-      particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400), 12));
-      particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400), 16));
-      particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
-      particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200), 32));
-      particles.add(new Particle(new Vec2(500, 100), new Vec2(200, 400), 12));
-      particles.add(new Particle(new Vec2(500, 200), new Vec2(-200, 400), 16));
-      particles.add(new Particle(new Vec2(500, 300), new Vec2(400, 200), 24));
-      particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200), 32));
-
-      return SimulationState.defaultBox(particles, mWidth, mHeight);
+      return testState();
     }
-
 
     enum Command {
-      SKIP, ADD, START
+      SKIP, ADD, START, TEST
     }
 
+    List<DynamicBody> particles = new ArrayList<>();
     mScanner.useLocale(new Locale("en", "US"));
     Command currentCommand = Command.SKIP;
 
@@ -62,13 +37,21 @@ public class InitializationInterface {
       if (split[0].equalsIgnoreCase("start")) {
         currentCommand = Command.START;
       }
-      if (split[0].equalsIgnoreCase("add")) {
+      else if (split[0].equalsIgnoreCase("add")) {
         currentCommand = Command.ADD;
+      }
+      else if (split[0].equalsIgnoreCase("test")) {
+        currentCommand = Command.TEST;
+      }
+      else {
+        System.out.println("Invalid command");
       }
 
       switch (currentCommand) {
         case START, SKIP:
           break;
+        case TEST:
+          return testState();
         case ADD:
           Particle toAdd = scanParticle(split);
           if (toAdd != null) {
@@ -76,12 +59,12 @@ public class InitializationInterface {
           }
           break;
         default:
-          System.out.println("Invalid command");
-          break;
+          throw new IllegalStateException("Unexpected value: " + currentCommand);
       }
     }
-    return SimulationState.defaultBox(particles, mWidth, mHeight);
+    return SimulationState.defaultBox(particles, App.sOptions.getWidth(), App.sOptions.getHeight());
   }
+
 
   private static Particle scanParticle(String[] split) {
     String errorMessage = "Invalid input, please enter a particle in the following format: x y vx vy r";
@@ -106,7 +89,30 @@ public class InitializationInterface {
     return new Particle(new Vec2(val[0], val[1]), new Vec2(val[2], val[3]), val[4]);
   }
 
-  private final int mWidth;
-  private final int mHeight;
+  private SimulationState testState(){
+    List<DynamicBody> particles = new ArrayList<>();
+
+//    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
+//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));
+
+//    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
+//    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
+
+    particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400), 12));
+    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400), 16));
+    particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200), 32));
+    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400), 12));
+    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400), 16));
+    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200), 32));
+    particles.add(new Particle(new Vec2(500, 100), new Vec2(200, 400), 12));
+    particles.add(new Particle(new Vec2(500, 200), new Vec2(-200, 400), 16));
+    particles.add(new Particle(new Vec2(500, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200), 32));
+
+    return SimulationState.defaultBox(particles, App.sOptions.getWidth(), App.sOptions.getHeight());
+  }
+
   private final Scanner mScanner;
 }

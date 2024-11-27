@@ -15,11 +15,9 @@ import App.Simulation.Body.DynamicBody;
 
 public class SimulationPanel extends JPanel {
 
-  public SimulationPanel(int width, int height, int FPS) {
-    mScreenWidth = width;
-    mScreenHeight = height;
+  public SimulationPanel() {
     mMouseHandler = new MouseHandler();
-    this.setPreferredSize(new Dimension(mScreenWidth, mScreenHeight));
+    this.setPreferredSize(new Dimension(App.sOptions.getWidth(), App.sOptions.getHeight()));
     this.setBackground(Color.black);
     this.setDoubleBuffered(true);
     this.addMouseListener(mMouseHandler);
@@ -71,7 +69,5 @@ public class SimulationPanel extends JPanel {
 
   private AnimationState mAnimationState; //TODO: use this
   private List<Body> mBodies; //TODO: delete this
-  private final int mScreenWidth;
-  private final int mScreenHeight;
   private final MouseHandler mMouseHandler;
 }

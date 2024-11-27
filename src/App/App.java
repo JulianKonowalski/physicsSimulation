@@ -18,19 +18,18 @@ import java.lang.management.ManagementFactory;
 public class App implements Runnable {
 
   public App(String windowTitle, int width, int height, int FPS, String logFilePath, String logDateFormat) {
+    sOptions = new AppOptions(width, height, FPS); //it should be initialized before any other object
     mTimestep = 1.0 / FPS;
-    mWidth = width;
-    mHeight = height;
     mTimer = new Timer();
     openLogger(logFilePath, logDateFormat);
 
-    InitializationInterface init = new InitializationInterface(width, height);
+    InitializationInterface init = new InitializationInterface();
     SimulationState initialState = init.getInitialState();
     mSimulation = new Simulation(initialState, mTimestep, this::log);
     openSimulationFileWriter(width, height, FPS);
 
     mWindow = new Window();
-    mPanel = mWindow.setup(windowTitle, width, height, FPS);
+    mPanel = mWindow.setup(windowTitle);
   }
 
   @Override
@@ -133,8 +132,6 @@ public class App implements Runnable {
   }
 
   private final double mTimestep;
-  private final int mWidth;
-  private final int mHeight;
   private final Simulation mSimulation;
   private final Timer mTimer;
   private final Window mWindow;
