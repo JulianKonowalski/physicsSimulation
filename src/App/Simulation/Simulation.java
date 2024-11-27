@@ -19,24 +19,34 @@ public class Simulation {
     List<StaticBody> walls = new ArrayList<>();
     List<DynamicBody> particles = new ArrayList<>();
 
-//    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
-//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));
+//    particles.add(new Particle(new Vec2(100, 100), new Vec2(-100, -100),10));
+//    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -200),32));
 
-//    particles.add(new Particle(new Vec2(110, 100), new Vec2(-100, -100),10));
-//    particles.add(new Particle(new Vec2(210, 200), new Vec2(-200, -200),32));
+    particles.add(new Particle(new Vec2(40, 100), new Vec2(200, 400),12));
+    particles.add(new Particle(new Vec2(50, 200), new Vec2(-200, 400),16));
+    particles.add(new Particle(new Vec2(60, 300), new Vec2(400, 200),24));
+    particles.add(new Particle(new Vec2(70, 400), new Vec2(-400, -200),32));
 
     particles.add(new Particle(new Vec2(100, 100), new Vec2(200, 400),12));
     particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, 400),16));
     particles.add(new Particle(new Vec2(300, 300), new Vec2(400, 200),24));
     particles.add(new Particle(new Vec2(400, 400), new Vec2(-400, -200),32));
-    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400),12));
-    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),16));
-    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
+
     particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200),32));
     particles.add(new Particle(new Vec2(500, 100), new Vec2(200, 400),12));
     particles.add(new Particle(new Vec2(500, 200), new Vec2(-200, 400),16));
     particles.add(new Particle(new Vec2(500, 300), new Vec2(400, 200), 24));
-    particles.add(new Particle(new Vec2(500, 400), new Vec2(-400, -200),32));
+
+    particles.add(new Particle(new Vec2(1000, 100), new Vec2(200, 400),12));
+    particles.add(new Particle(new Vec2(1000, 200), new Vec2(-200, 400),16));
+    particles.add(new Particle(new Vec2(1000, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(1000, 400), new Vec2(-400, -200),32));
+
+    particles.add(new Particle(new Vec2(700, 100), new Vec2(200, 400),12));
+    particles.add(new Particle(new Vec2(700, 200), new Vec2(-200, 400),16));
+    particles.add(new Particle(new Vec2(700, 300), new Vec2(400, 200), 24));
+    particles.add(new Particle(new Vec2(700, 400), new Vec2(-400, -200),32));
+
 
     walls.add(new Line(new Vec2(0, 0), new Vec2(1280, 0), 2.0));
     walls.add(new Line(new Vec2(1280, 0), new Vec2(1280, 720), 2.0));
@@ -68,10 +78,8 @@ public class Simulation {
       if(resolvedData == null) {
         break;
       }
-
       List<Body> against = new ArrayList<>(bodies);
-      against.remove(resolvedData.body());
-      against.remove(resolvedData.collider());
+      against.removeAll(resolvedData.toRemove());
 
       if(resolvedData.collider().type() == Body.Type.PARTICLE){
         FutureCollisionData againstData = mCollisionDetector.closestCollision((DynamicBody) resolvedData.collider(), against);
