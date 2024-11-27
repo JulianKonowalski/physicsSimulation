@@ -4,6 +4,7 @@ import App.FileHandlers.*;
 import App.Simulation.Simulation;
 import App.Simulation.SimulationState;
 import App.Util.Pair;
+import App.Util.AppOptions;
 import App.Util.Timer;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class App implements Runnable {
     mTimer.start();
     while (mWindow.isDisplayable()) { //MAIN LOOP
       mPanel.resolveMouseEvents();
-      mPanel.drawScene(mSimulation.getState().Bodies());
+      mPanel.drawScene(mSimulation.getState().Bodies()); //TODO: przekazać animationState
       this.writeFrame();
       mSimulation.update();
       this.frameSync();
@@ -53,7 +54,7 @@ public class App implements Runnable {
   private void frameSync() { //delay a frame to match the target FPS
     try {
       long sleepTime = (long) (mTimestep * 1e9 - mTimer.getElapsedTime());
-      if(isDebugging){
+      if(sOptions.isDebugging()) {
         sleepTime = Math.max(0, sleepTime);
         TimeUnit.NANOSECONDS.sleep(sleepTime);
         return;
@@ -145,5 +146,5 @@ public class App implements Runnable {
   private Logger mLogger;
   private SimulationFileWriter mFileWriter;
 
-   public boolean isDebugging = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("-agentlib:jdwp");
+  public static AppOptions sOptions;
 }

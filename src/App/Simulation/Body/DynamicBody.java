@@ -30,8 +30,8 @@ abstract public class DynamicBody implements Body {
   abstract public Type type();
   @Override
   abstract public LineSegment getLineSegment(double t);
-  @Override
-  abstract public Shape getShape();
+//  @Override
+//  abstract public Shape getShape();
 
   double mMass;
   Vec2 mVelocity;

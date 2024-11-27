@@ -11,7 +11,6 @@ import java.util.List;
 import java.lang.management.ManagementFactory;
 
 
-
 public class InitializationInterface {
 
   public InitializationInterface(int width, int height) {
@@ -24,7 +23,7 @@ public class InitializationInterface {
 
     List<DynamicBody> particles = new ArrayList<>();
 
-    if (ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("-agentlib:jdwp")) {
+    if (App.sOptions.isDebugging()) {
 
 //    particles.add(new Particle(new Vec2(200, 100), new Vec2(-100, -300),40));
 //    particles.add(new Particle(new Vec2(200, 200), new Vec2(-200, -400),40));

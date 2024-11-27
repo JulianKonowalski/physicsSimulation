@@ -6,7 +6,7 @@ import App.Simulation.Util.LineSegment;
 public interface Body {
 
   Type type();
-  Shape getShape();
+//  Shape getShape();
   LineSegment getLineSegment(double t);
 
   enum Type {

@@ -6,7 +6,6 @@ import java.util.TreeSet;
 import App.FileHandlers.LoggingInterface;
 import App.Simulation.Body.*;
 import App.Simulation.Util.FutureCollisionData;
-import App.Simulation.Util.Vec2;
 
 public class Simulation {
 

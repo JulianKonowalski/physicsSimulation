@@ -8,6 +8,8 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JPanel;
+
+import App.Graphics.AnimationState;
 import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
 
@@ -58,7 +60,7 @@ public class SimulationPanel extends JPanel {
     if(mBodies == null) { return; }
     int i = 0;
     for (Body body : mBodies) {
-      g2d.fill(body.getShape());
+//      g2d.fill(body.getShape()); //TODO: use GraphicsShape
       if (body instanceof DynamicBody dynamicBody) {
         String message = "Body " + i + " speed: (" + (int) dynamicBody.velocity().x() + ", " + (int) dynamicBody.velocity().y() + ")";
         g2d.drawString(message, 5, 30 + i * 15);
@@ -67,7 +69,8 @@ public class SimulationPanel extends JPanel {
     }
   }
 
-  private List<Body> mBodies;  
+  private AnimationState mAnimationState; //TODO: use this
+  private List<Body> mBodies; //TODO: delete this
   private final int mScreenWidth;
   private final int mScreenHeight;
   private final MouseHandler mMouseHandler;

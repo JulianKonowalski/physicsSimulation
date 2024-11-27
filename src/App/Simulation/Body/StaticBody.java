@@ -7,8 +7,8 @@ public interface StaticBody extends Body {
 
   @Override
   Type type();
-  @Override
-  Shape getShape();
+//  @Override
+//  Shape getShape();
   @Override
   LineSegment getLineSegment(double t);
 

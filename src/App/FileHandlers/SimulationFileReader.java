@@ -5,7 +5,7 @@ import App.Graphics.GraphicsLine;
 import App.Graphics.GraphicsShape;
 import App.Simulation.Body.Body;
 import App.Simulation.Util.Vec2;
-import App.Util.SimulationOptions;
+import App.Util.AppOptions;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -42,14 +42,14 @@ public class SimulationFileReader {
     return positions;
   }
 
-  private SimulationOptions loadSimulationOptions() throws IOException {
+  private AppOptions loadSimulationOptions() throws IOException {
     int screenWidth = mFile.readInt();
     int screenHeight = mFile.readInt();
     int FPS = mFile.readInt();
     mStaticBodiesSize = mFile.readInt();
     mDynamicBodiesSize = mFile.readInt();
     mFrameSize = mFile.readInt();
-    return new SimulationOptions(screenWidth, screenHeight, FPS);
+    return new AppOptions(screenWidth, screenHeight, FPS);
   }
 
   private List<GraphicsShape> loadStaticBodies() throws IOException {
