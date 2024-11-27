@@ -1,5 +1,6 @@
 package App.Simulation;
 
+import java.util.ArrayList;
 import java.util.List;
 import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
@@ -17,19 +18,20 @@ public class CollisionDetector {
 
   public FutureCollisionData closestCollision(DynamicBody current, List<Body> against) {
     FutureCollisionData closest = null;
+
     for (Body other : against) {
       if (other == current) { continue; }
       Double timeOfCollision = timeOfCollision((Particle) current, other);
-      if (timeOfCollision != null && current.timeInternal() <= timeOfCollision && timeOfCollision < mTimestep && (closest == null || timeOfCollision < closest.timeOfCollision())) {
-//        if(closest != null && closest.collider().type() == Body.Type.LINE && timeOfCollision == closest.timeOfCollision()) {
-//          Line closestLine = (Line) closest.collider();
-//          Line otherLine = (Line) other;
-//          Line cornerLine = constructCornerLine(closestLine, otherLine, current.position());
-//          closest = new FutureCollisionData(current, timeOfCollision, cornerLine);
-//        }
-//        else {
-          closest = new FutureCollisionData(current, timeOfCollision, other);
-//        }
+      if (timeOfCollision != null && current.timeInternal() <= timeOfCollision && timeOfCollision < mTimestep) {
+        if(closest != null && closest.collider().type() == Body.Type.LINE && Math.abs(timeOfCollision-closest.timeOfCollision()) < mEpsilon ) {
+          Line closestLine = (Line) closest.collider();
+          Line otherLine = (Line) other;
+          Line cornerLine = constructCornerLine(closestLine, otherLine, current.position());
+          closest = new FutureCollisionData(current, timeOfCollision, cornerLine, List.of(current, other, closest.collider()));
+        }
+        else if(closest == null || timeOfCollision < closest.timeOfCollision()) {
+          closest = new FutureCollisionData(current, timeOfCollision, other, List.of(current, other));
+        }
       }
     }
     return closest;
@@ -105,4 +107,5 @@ public class CollisionDetector {
   }
 
   private final double mTimestep;
+  private final double mEpsilon = Math.ulp(1.0);
 }

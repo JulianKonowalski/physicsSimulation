@@ -1,10 +1,10 @@
 package App.Simulation.Util;
 
+import java.util.List;
 import App.Simulation.Body.Body;
 import App.Simulation.Body.DynamicBody;
-import App.Simulation.Body.Line;
 
-public record FutureCollisionData(DynamicBody body, double timeOfCollision, Body collider) implements Comparable<FutureCollisionData> {
+public record FutureCollisionData(DynamicBody body, double timeOfCollision, Body collider, List<Body> toRemove) implements Comparable<FutureCollisionData> {
 
   @Override
   public int compareTo(FutureCollisionData o) {

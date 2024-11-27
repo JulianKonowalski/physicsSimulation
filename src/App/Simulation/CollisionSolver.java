@@ -67,5 +67,4 @@ public class CollisionSolver {
   public static final class SolverKey { private SolverKey() {} }
 
   private static final SolverKey solverKey = new SolverKey();
-  static boolean flag = false;
 }
