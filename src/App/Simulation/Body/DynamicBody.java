@@ -1,6 +1,5 @@
 package App.Simulation.Body;
 
-import java.awt.Shape;
 import App.Simulation.CollisionSolver;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
@@ -30,8 +29,6 @@ abstract public class DynamicBody implements Body {
   abstract public Type type();
   @Override
   abstract public LineSegment getLineSegment(double t);
-//  @Override
-//  abstract public Shape getShape();
 
   double mMass;
   Vec2 mVelocity;

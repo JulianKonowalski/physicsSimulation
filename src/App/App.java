@@ -1,10 +1,12 @@
 package App;
 
 import App.FileHandlers.*;
+import App.Graphics.AnimationConverter;
+import App.Graphics.AnimationState;
 import App.Simulation.Simulation;
 import App.Simulation.SimulationState;
-import App.Util.Pair;
 import App.Util.AppOptions;
+import App.Util.Pair;
 import App.Util.Timer;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.lang.management.ManagementFactory;
 
 public class App implements Runnable {
 
@@ -28,6 +29,12 @@ public class App implements Runnable {
     mSimulation = new Simulation(initialState, mTimestep, this::log);
     openSimulationFileWriter(width, height, FPS);
 
+    mAnimationConverter = new AnimationConverter();
+    mAnimationState = new AnimationState(
+      mAnimationConverter.getStaticShapes(mSimulation.getState()), 
+      mAnimationConverter.getDynamicShapes(mSimulation.getState())
+    );
+
     mWindow = new Window();
     mPanel = mWindow.setup(windowTitle);
   }
@@ -39,9 +46,10 @@ public class App implements Runnable {
     mTimer.start();
     while (mWindow.isDisplayable()) { //MAIN LOOP
       mPanel.resolveMouseEvents();
-      mPanel.drawScene(mSimulation.getState().Bodies()); //TODO: przekazać animationState
+      mPanel.drawScene(mAnimationState);
       this.writeFrame();
       mSimulation.update();
+      mAnimationConverter.updateAnimationState(mAnimationState, mSimulation.getState());
       this.frameSync();
       mTimer.start();
     }
@@ -131,9 +139,13 @@ public class App implements Runnable {
     }
   }
 
+  public static AppOptions sOptions;
+
+  private final Timer mTimer;
   private final double mTimestep;
   private final Simulation mSimulation;
-  private final Timer mTimer;
+  private final AnimationState mAnimationState;
+  private final AnimationConverter mAnimationConverter;
   private final Window mWindow;
   private final SimulationPanel mPanel;
 
@@ -143,5 +155,4 @@ public class App implements Runnable {
   private Logger mLogger;
   private SimulationFileWriter mFileWriter;
 
-  public static AppOptions sOptions;
 }

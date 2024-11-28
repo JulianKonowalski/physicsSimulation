@@ -1,11 +1,9 @@
 package App.Simulation.Body;
 
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.util.Objects;
 import App.Simulation.CollisionSolver;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
+import java.util.Objects;
 
 public class Particle extends DynamicBody {
 
@@ -50,14 +48,6 @@ public class Particle extends DynamicBody {
   // Body interface
   @Override
   public Type type() { return Type.PARTICLE; }
-//  @Override
-//  public Shape getShape() {
-//    return new Ellipse2D.Double(
-//            mPosition.x() - mRadius,
-//            mPosition.y() - mRadius,
-//            2.0 * mRadius,
-//            2.0 * mRadius);
-//  }
   @Override
   public LineSegment getLineSegment(double t) {
     return new LineSegment(mPosition, predictedPosition(t));

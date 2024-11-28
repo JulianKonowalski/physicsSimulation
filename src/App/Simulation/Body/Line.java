@@ -1,10 +1,5 @@
 package App.Simulation.Body;
 
-import java.awt.Shape;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.util.ArrayList;
-import java.util.List;
 import App.Simulation.Util.LineSegment;
 import App.Simulation.Util.Vec2;
 
@@ -27,27 +22,6 @@ public class Line extends LineSegment implements StaticBody {
   public double B() { return B; }
   public double C() { return C; }
   public double thickness() { return mThickness; } //TODO: delete if possible
-//  @Override
-//  public Shape getShape() { return mShape; }
-//  private Path2D constructShape(double thickness) {
-//    Path2D path = new Path2D.Double();
-//    List<Line2D> lines = new ArrayList<>();
-//    Vec2 lineVector = new Vec2(p2().x() - p1().x(), p2().y() - p1().y());
-//    Vec2 perpendicularVector = Vec2.scale(Vec2.normalize(Vec2.perpendicularClockwise(lineVector)), thickness / 2);
-//    Vec2 point1 = Vec2.add(p1(), perpendicularVector);
-//    Vec2 point2 = Vec2.add(p2(), perpendicularVector);
-//    Vec2 point3 = Vec2.subtract(p2(), perpendicularVector);
-//    Vec2 point4 = Vec2.subtract(p1(), perpendicularVector);
-//    lines.add(new Line2D.Double(point1.x(), point1.y(), point2.x(), point2.y()));
-//    lines.add(new Line2D.Double(point2.x(), point2.y(), point3.x(), point3.y()));
-//    lines.add(new Line2D.Double(point3.x(), point3.y(), point4.x(), point4.y()));
-//    lines.add(new Line2D.Double(point4.x(), point4.y(), point1.x(), point1.y()));
-//    for (Line2D line : lines) {
-//      path.append(line, path.getCurrentPoint() != null);
-//    }
-//    path.closePath();
-//    return path;
-//  }
 
   public static Vec2 intersection(Line line1, Line line2) {
     double a1 = line1.A(), b1 = line1.B(), c1 = line1.C();

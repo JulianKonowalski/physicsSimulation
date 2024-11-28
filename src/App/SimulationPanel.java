@@ -1,5 +1,7 @@
 package App;
 
+import App.Graphics.AnimationState;
+import App.Graphics.GraphicsShape;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -8,10 +10,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JPanel;
-
-import App.Graphics.AnimationState;
-import App.Simulation.Body.Body;
-import App.Simulation.Body.DynamicBody;
 
 public class SimulationPanel extends JPanel {
 
@@ -24,9 +22,8 @@ public class SimulationPanel extends JPanel {
     this.setFocusable(true);
   }
 
-  public void drawScene(List<Body> bodies) { //what client calls
-    if(bodies == null) { return; } //it'll drop a frame
-    mBodies = bodies;
+  public void drawScene(AnimationState animationState) { //what client calls
+    mAnimationState = animationState;
     repaint(); //internal method, calls paintComponent
   }
 
@@ -55,19 +52,25 @@ public class SimulationPanel extends JPanel {
   }
 
   private void draw(Graphics2D g2d) {
-    if(mBodies == null) { return; }
-    int i = 0;
-    for (Body body : mBodies) {
-//      g2d.fill(body.getShape()); //TODO: use GraphicsShape
-      if (body instanceof DynamicBody dynamicBody) {
-        String message = "Body " + i + " speed: (" + (int) dynamicBody.velocity().x() + ", " + (int) dynamicBody.velocity().y() + ")";
-        g2d.drawString(message, 5, 30 + i * 15);
-        ++i;
-      }
+    if(mAnimationState == null) { return; }
+
+    /* STATIC SHAPES */
+    List<GraphicsShape> shapes = mAnimationState.getStaticShapes();
+    for(GraphicsShape shape : shapes) {
+      g2d.fill(shape.getShape());
+    }
+
+    /* DYNAMIC SHAPES */
+    //int i = 0;
+    shapes = mAnimationState.getDynamicShapes();
+    for (GraphicsShape shape : shapes) {
+      g2d.fill(shape.getShape());
+      // String message = "Body " + i + " speed: (" + (int) dynamicBody.velocity().x() + ", " + (int) dynamicBody.velocity().y() + ")";
+      // g2d.drawString(message, 5, 30 + i * 15);
+      // ++i;
     }
   }
 
-  private AnimationState mAnimationState; //TODO: use this
-  private List<Body> mBodies; //TODO: delete this
+  private AnimationState mAnimationState;
   private final MouseHandler mMouseHandler;
 }
